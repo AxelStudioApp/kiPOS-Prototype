@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kiPOS - Mobile Point of Sales</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #FF9800;
+            --text-color: #333;
+            --bg-color: #f4f4f4;
+            --card-bg: #fff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 480px;
+            margin: auto;
+            background-color: var(--card-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .logo {
+            font-weight: bold;
+        }
+
+        .header .cart-icon {
+            font-size: 1.5em;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--secondary-color);
+            color: #fff;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .product-list, .cart-list {
+            display: grid;
+            gap: 15px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .product-card {
+            background-color: var(--card-bg);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .product-card .info {
+            padding: 10px;
+        }
+
+        .product-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 1em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-card .price {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .product-card button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            margin-top: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.9em;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item .item-details {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .cart-item .item-details span {
+            font-size: 0.9em;
+        }
+
+        .cart-item .item-price {
+            font-weight: bold;
+        }
+
+        .cart-item .quantity-control {
+            display: flex;
+            align-items: center;
+        }
+
+        .cart-item .quantity-control button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+
+        .cart-item .quantity-control span {
+            margin: 0 10px;
+            font-weight: bold;
+            width: 20px;
+            text-align: center;
+        }
+
+        .cart-total {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .checkout-btn {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .footer-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            position: sticky;
+            bottom: 0;
+            background-color: var(--card-bg);
+            z-index: 1000;
+        }
+
+        .footer-nav button {
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1em;
+        }
+
+        .footer-nav button.active {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        #cart-page .product-list {
+            grid-template-columns: 1fr;
+        }
+
+        .category-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .category-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .category-card img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="logo">kiPOS</span>
+            <div class="cart-icon" onclick="showPage('cart-page')">
+                🛒 <span id="cart-count" class="cart-count">0</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="home-page" class="page active">
+                <div class="category-list">
+                    <div class="category-card" onclick="showProductList('Makanan')">
+                        <img src="https://via.placeholder.com/50/4CAF50/FFFFFF?text=F" alt="Food">
+                        <h3>Makanan</h3>
+                    </div>
+                    <div class="category-card" onclick="showProductList('Minuman')">
+                        <img src="https://via.placeholder.com/50/2196F3/FFFFFF?text=D" alt="Drinks">
+                        <h3>Minuman</h3>
+                    </div>
+                    <div class="category-card" onclick="showProductList('Snack')">
+                        <img src="https://via.placeholder.com/50/FFC107/FFFFFF?text=S" alt="Snacks">
+                        <h3>Snack</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div id="product-list-page" class="page">
+                <h2 id="product-category-title">Produk</h2>
+                <div class="product-list" id="product-items-container"></div>
+            </div>
+
+            <div id="cart-page" class="page">
+                <h2>Keranjang Belanja</h2>
+                <div id="cart-list"></div>
+                <div id="cart-summary" style="display:none;">
+                    <div class="cart-total">
+                        <span>Total:</span>
+                        <span id="cart-total-price">Rp 0</span>
+                    </div>
+                    <button class="checkout-btn">Bayar</button>
+                </div>
+                <p id="empty-cart-message">Keranjang belanja Anda kosong.</p>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <button id="home-btn" class="active" onclick="showPage('home-page')">Beranda</button>
+            <button id="cart-btn" onclick="showPage('cart-page')">Keranjang</button>
+        </div>
+    </div>
+
+    <script>
+        const products = {
+            'Makanan': [
+                { id: 1, name: 'Nasi Goreng', price: 20000, img: 'https://via.placeholder.com/150/4CAF50/FFFFFF?text=Nasi' },
+                { id: 2, name: 'Ayam Bakar', price: 25000, img: 'https://via.placeholder.com/150/4CAF50/FFFFFF?text=Ayam' },
+                { id: 3, name: 'Sate Ayam', price: 18000, img: 'https://via.placeholder.com/150/4CAF50/FFFFFF?text=Sate' },
+            ],
+            'Minuman': [
+                { id: 4, name: 'Es Teh Manis', price: 5000, img: 'https://via.placeholder.com/150/2196F3/FFFFFF?text=EsTeh' },
+                { id: 5, name: 'Kopi Susu', price: 12000, img: 'https://via.placeholder.com/150/2196F3/FFFFFF?text=Kopi' },
+                { id: 6, name: 'Jus Jeruk', price: 10000, img: 'https://via.placeholder.com/150/2196F3/FFFFFF?text=Jus' },
+            ],
+            'Snack': [
+                { id: 7, name: 'Kentang Goreng', price: 15000, img: 'https://via.placeholder.com/150/FFC107/FFFFFF?text=Kentang' },
+                { id: 8, name: 'Roti Bakar', price: 12000, img: 'https://via.placeholder.com/150/FFC107/FFFFFF?text=Roti' },
+            ]
+        };
+
+        let cart = JSON.parse(localStorage.getItem('kipos_cart')) || {};
+
+        function saveCart() {
+            localStorage.setItem('kipos_cart', JSON.stringify(cart));
+            updateCartCount();
+            renderCart();
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('.footer-nav button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(pageId.replace('-page', '-btn')).classList.add('active');
+            if (pageId === 'cart-page') {
+                renderCart();
+            }
+        }
+
+        function showProductList(category) {
+            const productListContainer = document.getElementById('product-items-container');
+            const categoryTitle = document.getElementById('product-category-title');
+            productListContainer.innerHTML = '';
+            categoryTitle.textContent = category;
+            
+            const selectedProducts = products[category];
+            selectedProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <img src="${product.img}" alt="${product.name}">
+                    <div class="info">
+                        <h3>${product.name}</h3>
+                        <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
+                        <button onclick="addToCart(${product.id}, '${product.name}', ${product.price}, '${product.img}')">Tambah ke Keranjang</button>
+                    </div>
+                `;
+                productListContainer.appendChild(productCard);
+            });
+
+            showPage('product-list-page');
+        }
+
+        function addToCart(id, name, price, img) {
+            if (cart[id]) {
+                cart[id].quantity++;
+            } else {
+                cart[id] = { id, name, price, img, quantity: 1 };
+            }
+            saveCart();
+        }
+
+        function updateCartCount() {
+            const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+            const cartCountElement = document.getElementById('cart-count');
+            cartCountElement.textContent = totalItems;
+            cartCountElement.style.display = totalItems > 0 ? 'block' : 'none';
+        }
+
+        function renderCart() {
+            const cartList = document.getElementById('cart-list');
+            const cartSummary = document.getElementById('cart-summary');
+            const emptyCartMessage = document.getElementById('empty-cart-message');
+            let total = 0;
+            cartList.innerHTML = '';
+
+            const cartItems = Object.values(cart);
+            if (cartItems.length === 0) {
+                emptyCartMessage.style.display = 'block';
+                cartSummary.style.display = 'none';
+                return;
+            }
+
+            emptyCartMessage.style.display = 'none';
+            cartSummary.style.display = 'block';
+
+            cartItems.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                const cartItemElement = document.createElement('div');
+                cartItemElement.className = 'cart-item';
+                cartItemElement.innerHTML = `
+                    <div class="item-details">
+                        <b>${item.name}</b>
+                        <span>Rp ${item.price.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="quantity-control">
+                        <button onclick="updateQuantity(${item.id}, -1)">-</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="updateQuantity(${item.id}, 1)">+</button>
+                    </div>
+                    <div class="item-price">
+                        Rp ${itemTotal.toLocaleString('id-ID')}
+                    </div>
+                `;
+                cartList.appendChild(cartItemElement);
+            });
+
+            document.getElementById('cart-total-price').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        function updateQuantity(id, change) {
+            if (cart[id]) {
+                cart[id].quantity += change;
+                if (cart[id].quantity <= 0) {
+                    delete cart[id];
+                }
+            }
+            saveCart();
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            renderCart();
+        });
+    </script>
+</body>
+</html>
