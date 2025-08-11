@@ -152,6 +152,8 @@
 
         .page {
             display: none;
+            min-height: calc(100vh - 60px);
+            padding-bottom: 70px;
         }
 
         .page.active {
@@ -193,21 +195,30 @@
 
         /* --- Custom Loaders --- */
         .loader-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             text-align: center;
             background-color: var(--bg-color);
+            z-index: 9999;
         }
         
+        /* Loader Gear */
         .loader-gear-wrapper {
             position: relative;
             width: 80px;
             height: 80px;
+            margin-bottom: 20px;
         }
         .loader-gear {
+            font-size: 80px;
+            color: var(--text-light);
             animation: spin 3s linear infinite;
         }
         .loader-gear-inside {
@@ -219,6 +230,7 @@
             font-size: 1.2em;
         }
         
+        /* Loader kiPOS */
         .loader-kipos .logo-icon {
             font-size: 5em;
             color: var(--primary-color);
@@ -244,6 +256,11 @@
         }
 
         /* --- Skeleton Loader --- */
+        .skeleton-loader-page {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
         .skeleton {
             animation: pulse 1.5s infinite;
         }
@@ -267,6 +284,24 @@
         .skeleton-card .text {
             width: 100%;
             height: 15px;
+        }
+        .skeleton-dashboard .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .skeleton-dashboard .summary-card {
+            height: 100px;
+        }
+        .skeleton-dashboard .chart-container {
+            height: 250px;
+        }
+        .skeleton-product-list .product-card {
+            height: 200px;
+        }
+        .skeleton-history .history-item {
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
         }
         @keyframes pulse {
             0% { opacity: 0.5; }
@@ -312,6 +347,7 @@
             justify-content: center;
             padding: 20px;
             text-align: center;
+            min-height: calc(100vh);
         }
         .auth-container .auth-header {
             margin-bottom: 40px;
@@ -381,188 +417,8 @@
         .auth-footer a {
             font-weight: 600;
         }
-
-        /* --- Other Pages (Same as v4) --- */
-        #onboarding-page {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
-        #onboarding-page .onboarding-icon {
-            font-size: 5em;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-        #onboarding-page h2 {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-        #onboarding-page p {
-            font-size: 1.1em;
-            color: var(--text-light);
-            margin-bottom: 40px;
-        }
-        .onboarding-btn {
-            background-color: var(--accent-color);
-            color: #fff;
-            padding: 15px 40px;
-            border-radius: 8px;
-            font-size: 1.1em;
-            cursor: pointer;
-            border: none;
-            font-weight: 600;
-        }
-        #dashboard-page .summary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        #dashboard-page .summary-card {
-            padding: 20px;
-            border-radius: 12px;
-            color: #fff;
-        }
-        #dashboard-page .summary-card.sales {
-            background: linear-gradient(45deg, #38A169, #48BB78);
-        }
-        #dashboard-page .summary-card.profit {
-            background: linear-gradient(45deg, #4C51BF, #667EEA);
-        }
-        #dashboard-page .summary-card .value {
-            font-size: 2em;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-        #dashboard-page .summary-card .label {
-            font-size: 0.9em;
-        }
-        #dashboard-page .chart-container {
-            margin-top: 20px;
-            height: 200px;
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            position: relative;
-        }
-        .bar-chart-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-end;
-            height: 100%;
-        }
-        .bar-chart-container .bar {
-            width: 15%;
-            background-color: var(--primary-color);
-            border-radius: 4px 4px 0 0;
-            transition: height 0.5s;
-        }
-        #manage-products-page .product-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        #manage-products-page .product-item:last-child {
-            border-bottom: none;
-        }
-        #manage-products-page .product-item img {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-        #manage-products-page .product-item .details {
-            flex-grow: 1;
-        }
-        #manage-products-page .product-item .name {
-            font-weight: 600;
-        }
-        #manage-products-page .product-item .price {
-            color: var(--primary-color);
-            font-weight: 500;
-        }
-        #sale-history-page .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        #sale-history-page .history-item:last-child {
-            border-bottom: none;
-        }
-        #sale-history-page .history-item .info {
-            flex-grow: 1;
-        }
-        #sale-history-page .history-item .info h4 {
-            margin: 0 0 5px 0;
-            font-size: 1.1em;
-            font-weight: 600;
-        }
-        #sale-history-page .history-item .info span {
-            font-size: 0.9em;
-            color: var(--text-light);
-        }
-        #sale-history-page .history-item .total {
-            font-weight: 700;
-            color: var(--primary-color);
-            font-size: 1.1em;
-        }
-        #payment-page .payment-summary-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        #payment-page .payment-summary-item span {
-            color: var(--text-light);
-        }
-        #payment-page .payment-summary-item .total {
-            font-size: 1.2em;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        #payment-page .payment-method-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        #payment-page .method-card {
-            text-align: center;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px 10px;
-            cursor: pointer;
-            transition: border-color 0.3s, background-color 0.3s;
-        }
-        #payment-page .method-card.active {
-            border-color: var(--primary-color);
-            background-color: var(--green-light);
-        }
-        #payment-page .method-card .material-icons-outlined {
-            font-size: 2.5em;
-            color: var(--text-light);
-            margin-bottom: 10px;
-        }
-        #payment-page .method-card.active .material-icons-outlined {
-            color: var(--primary-color);
-        }
-        #payment-page .method-card h4 {
-            margin: 0;
-            font-weight: 600;
-        }
-        #payment-page .back-to-cart {
-            margin-top: 15px;
-            color: var(--text-light);
-            text-align: center;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .product-list, .cart-list {
+        
+        .product-list, .category-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
@@ -679,11 +535,6 @@
             font-size: 1.2em;
             font-weight: 700;
         }
-        .category-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-        }
         .category-card {
             background-color: var(--card-bg);
             border-radius: 12px;
@@ -710,6 +561,76 @@
             position: relative;
         }
         
+        .add-to-cart-notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            max-width: calc(100% - 30px);
+            pointer-events: none;
+        }
+        .add-to-cart-notification.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .add-to-cart-notification .item-name {
+            font-weight: 600;
+        }
+        .add-to-cart-notification .item-control {
+            display: flex;
+            align-items: center;
+        }
+        .add-to-cart-notification .item-control button {
+            background: none;
+            border: 1px solid #fff;
+            color: #fff;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .add-to-cart-notification .item-control span {
+            margin: 0 10px;
+            font-weight: 600;
+        }
+        .add-to-cart-notification .view-cart-btn {
+            background-color: var(--secondary-color);
+            border: none;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #onboarding-page .onboarding-icon,
+        #onboarding-page h2,
+        #onboarding-page p {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        #landing-page .logo-icon,
+        #landing-page h1,
+        #landing-page p,
+        .landing-btn-group {
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -726,12 +647,13 @@
         <div class="content" id="app-content">
             <div id="general-loader" class="page loader-page" style="display:none;">
                 <div class="loader-gear-wrapper">
-                    <i class="material-icons loader-gear" style="font-size: 80px; color: var(--text-light);">settings</i>
+                    <i class="material-icons loader-gear">settings</i>
                     <i class="material-icons loader-gear-inside">build</i>
                 </div>
+                <h3>Memuat...</h3>
             </div>
             
-            <div id="kipos-loader" class="page loader-page active" style="display: none;">
+            <div id="kipos-loader" class="page loader-page active">
                 <i class="material-icons logo-icon">storefront</i>
                 <h1>kiPOS</h1>
             </div>
@@ -784,7 +706,7 @@
                     </div>
                     <div class="input-group">
                         <i class="material-icons-outlined">category</i>
-                        <select id="business-category">
+                        <select id="business-category" required>
                             <option value="" disabled selected>Pilih Kategori Bisnis</option>
                             <option value="food_beverage">Makanan & Minuman</option>
                             <option value="retail">Retail</option>
@@ -832,32 +754,17 @@
                 </div>
                 <form class="auth-form" onsubmit="handleOtpVerification(event)">
                     <div class="otp-inputs">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
                     </div>
                     <button type="submit" class="btn">Verifikasi</button>
                 </form>
                 <div class="auth-footer">
                     Tidak menerima kode? <a href="#">Kirim Ulang</a>
-                </div>
-            </div>
-
-            <div id="skeleton-loader-page" class="page" style="display:none;">
-                <div class="card skeleton-card">
-                    <div class="skeleton skeleton-block title"></div>
-                    <div class="skeleton skeleton-block text"></div>
-                </div>
-                <div class="card skeleton-card">
-                    <div class="skeleton skeleton-block title"></div>
-                    <div class="skeleton skeleton-block text"></div>
-                </div>
-                <div class="card skeleton-card">
-                    <div class="skeleton skeleton-block title"></div>
-                    <div class="skeleton skeleton-block text"></div>
                 </div>
             </div>
 
@@ -999,6 +906,16 @@
             </button>
         </div>
     </div>
+    
+    <div id="add-to-cart-notification" class="add-to-cart-notification">
+        <span id="notification-text" class="item-name"></span>
+        <div class="item-control">
+            <button onclick="updateQuantityFromNotification(-1)">-</button>
+            <span id="notification-quantity">1</span>
+            <button onclick="updateQuantityFromNotification(1)">+</button>
+        </div>
+        <button class="view-cart-btn" onclick="showPage('cart-page')">Lihat Keranjang</button>
+    </div>
 
     <script>
         const products = {
@@ -1023,6 +940,8 @@
         let currentPage = 'kipos-loader';
         const pageHistory = [];
         const isVerifiedDevice = localStorage.getItem('is_verified_device') === 'true';
+
+        let lastAddedProductId = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             showPage('kipos-loader');
@@ -1061,9 +980,9 @@
                 showAppUI(false);
             }
 
-            if (pageId !== currentPage && flow === document.getElementById(currentPage).getAttribute('data-flow')) {
+            if (pageId !== currentPage && document.getElementById(currentPage) && flow === document.getElementById(currentPage).getAttribute('data-flow')) {
                  pageHistory.push(currentPage);
-            } else if (flow !== document.getElementById(currentPage).getAttribute('data-flow')) {
+            } else if (document.getElementById(currentPage) && flow !== document.getElementById(currentPage).getAttribute('data-flow')) {
                  pageHistory.length = 0;
             }
 
@@ -1098,7 +1017,15 @@
         }
 
         function showPageWithLoader(pageId) {
-            showPage('general-loader');
+            document.getElementById('add-to-cart-notification').classList.remove('visible');
+            const flow = document.getElementById(pageId).getAttribute('data-flow');
+            
+            if(flow === 'app') {
+                showPage('general-loader');
+            } else {
+                showPage('kipos-loader');
+            }
+
             setTimeout(() => {
                 showPage(pageId);
                 if (pageId === 'dashboard-page') renderDashboard();
@@ -1168,8 +1095,16 @@
                 }
             }
         }
+        function moveToPrev(event, currentInput) {
+            if (event.key === 'Backspace' && currentInput.value.length === 0) {
+                const prevInput = currentInput.previousElementSibling;
+                if (prevInput) {
+                    prevInput.focus();
+                }
+            }
+        }
 
-        // --- App Logic (Same as v4) ---
+        // --- App Logic ---
         function showProductList(category) {
             const productListContainer = document.getElementById('product-items-container');
             const categoryTitle = document.getElementById('product-category-title');
@@ -1185,7 +1120,7 @@
                     <div class="info">
                         <h3>${product.name}</h3>
                         <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
-                        <button class="add-btn" onclick="addToCart(${product.id}, '${product.name}', ${product.price}, '${product.img}')">
+                        <button class="add-btn" onclick="addToCart(${product.id}, '${product.name}')">
                             <i class="material-icons-outlined" style="font-size: 1.2em; margin-right: 5px;">add_circle_outline</i>
                             Tambah
                         </button>
@@ -1196,14 +1131,50 @@
             showPage('product-list-page');
         }
 
-        function addToCart(id, name, price, img) {
-            if (cart[id]) {
-                cart[id].quantity++;
+        function addToCart(productId, productName) {
+            const product = Object.values(products).flat().find(p => p.id === productId);
+            if (!product) return;
+
+            if (cart[productId]) {
+                cart[productId].quantity++;
             } else {
-                cart[id] = { id, name, price, img, quantity: 1 };
+                cart[productId] = { ...product, quantity: 1 };
             }
+            lastAddedProductId = productId;
             saveCart();
-            alert(`${name} ditambahkan ke keranjang!`);
+            showAddToCartNotification(productName, cart[productId].quantity);
+        }
+
+        function updateQuantityFromNotification(change) {
+            if (lastAddedProductId && cart[lastAddedProductId]) {
+                cart[lastAddedProductId].quantity += change;
+                if (cart[lastAddedProductId].quantity <= 0) {
+                    delete cart[lastAddedProductId];
+                    hideAddToCartNotification();
+                } else {
+                    document.getElementById('notification-quantity').textContent = cart[lastAddedProductId].quantity;
+                }
+                saveCart();
+            }
+        }
+
+        let notificationTimeout;
+        function showAddToCartNotification(productName, quantity) {
+            const notification = document.getElementById('add-to-cart-notification');
+            document.getElementById('notification-text').textContent = productName;
+            document.getElementById('notification-quantity').textContent = quantity;
+            
+            clearTimeout(notificationTimeout);
+            notification.classList.add('visible');
+            
+            notificationTimeout = setTimeout(() => {
+                notification.classList.remove('visible');
+            }, 3000); 
+        }
+
+        function hideAddToCartNotification() {
+            const notification = document.getElementById('add-to-cart-notification');
+            notification.classList.remove('visible');
         }
 
         function updateCartCount() {
