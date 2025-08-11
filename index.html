@@ -157,7 +157,7 @@
         .page.active {
             display: block;
         }
-
+        
         .card {
             background-color: var(--card-bg);
             border-radius: 12px;
@@ -189,6 +189,58 @@
         }
         .btn.secondary:hover {
             background-color: var(--green-light);
+        }
+
+        /* --- Custom Loaders --- */
+        .loader-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            background-color: var(--bg-color);
+        }
+        
+        .loader-gear-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .loader-gear {
+            animation: spin 3s linear infinite;
+        }
+        .loader-gear-inside {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--bg-color);
+            font-size: 1.2em;
+        }
+        
+        .loader-kipos .logo-icon {
+            font-size: 5em;
+            color: var(--primary-color);
+            animation: pulse-loader 1.5s infinite;
+        }
+        .loader-kipos h1 {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 10px 0;
+            animation: pulse-loader 1.5s infinite;
+            animation-delay: 0.2s;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse-loader {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
         }
 
         /* --- Skeleton Loader --- */
@@ -286,7 +338,7 @@
             color: var(--text-light);
             font-size: 1.2em;
         }
-        .auth-form input {
+        .auth-form input, .auth-form select {
             width: 100%;
             padding: 15px 15px 15px 50px;
             border-radius: 8px;
@@ -294,6 +346,14 @@
             font-family: 'Poppins', sans-serif;
             font-size: 1em;
             background-color: var(--bg-color);
+        }
+        .auth-form select {
+            padding-left: 50px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23718096'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 1em;
         }
         .auth-form a {
             color: var(--primary-color);
@@ -664,7 +724,19 @@
         </div>
 
         <div class="content" id="app-content">
-            <div id="landing-page" class="page active" data-flow="landing">
+            <div id="general-loader" class="page loader-page" style="display:none;">
+                <div class="loader-gear-wrapper">
+                    <i class="material-icons loader-gear" style="font-size: 80px; color: var(--text-light);">settings</i>
+                    <i class="material-icons loader-gear-inside">build</i>
+                </div>
+            </div>
+            
+            <div id="kipos-loader" class="page loader-page active" style="display: none;">
+                <i class="material-icons logo-icon">storefront</i>
+                <h1>kiPOS</h1>
+            </div>
+
+            <div id="landing-page" class="page" data-flow="auth">
                 <i class="material-icons logo-icon">storefront</i>
                 <h1>kiPOS</h1>
                 <p>Solusi Point of Sales untuk bisnis Anda</p>
@@ -707,6 +779,20 @@
                         <input type="text" id="store-name" placeholder="Nama Toko" required>
                     </div>
                     <div class="input-group">
+                        <i class="material-icons-outlined">person</i>
+                        <input type="text" id="owner-name" placeholder="Nama Pemilik" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="material-icons-outlined">category</i>
+                        <select id="business-category">
+                            <option value="" disabled selected>Pilih Kategori Bisnis</option>
+                            <option value="food_beverage">Makanan & Minuman</option>
+                            <option value="retail">Retail</option>
+                            <option value="service">Jasa</option>
+                            <option value="other">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
                         <i class="material-icons-outlined">email</i>
                         <input type="email" id="register-email" placeholder="Email" required>
                     </div>
@@ -731,7 +817,7 @@
                         <i class="material-icons-outlined">email</i>
                         <input type="email" id="forgot-email" placeholder="Email" required>
                     </div>
-                    <button type="submit" class="btn">Kirim Verifikasi</button>
+                    <button type="submit" class="btn">Kirim OTP</button>
                 </form>
                 <div class="auth-footer">
                     <a href="#" onclick="showPage('login-page')">Kembali ke Login</a>
@@ -760,7 +846,7 @@
                 </div>
             </div>
 
-            <div id="loader-page" class="page" style="display:none;">
+            <div id="skeleton-loader-page" class="page" style="display:none;">
                 <div class="card skeleton-card">
                     <div class="skeleton skeleton-block title"></div>
                     <div class="skeleton skeleton-block text"></div>
@@ -891,23 +977,23 @@
         </div>
 
         <div class="footer-nav" id="app-footer-nav" style="display: none;">
-            <button id="dashboard-btn" class="active" onclick="showPage('dashboard-page')">
+            <button id="dashboard-btn" class="active" onclick="showPageWithLoader('dashboard-page')">
                 <i class="material-icons">dashboard</i>
                 Dashboard
             </button>
-            <button id="home-btn" onclick="showPage('home-page')">
+            <button id="home-btn" onclick="showPageWithLoader('home-page')">
                 <i class="material-icons">sell</i>
                 Penjualan
             </button>
-            <button id="manage-products-btn" onclick="showPage('manage-products-page')">
+            <button id="manage-products-btn" onclick="showPageWithLoader('manage-products-page')">
                 <i class="material-icons">inventory_2</i>
                 Produk
             </button>
-            <button id="sale-history-btn" onclick="showPage('sale-history-page')">
+            <button id="sale-history-btn" onclick="showPageWithLoader('sale-history-page')">
                 <i class="material-icons">history</i>
                 Riwayat
             </button>
-            <button id="report-btn" onclick="showPage('report-page')">
+            <button id="report-btn" onclick="showPageWithLoader('report-page')">
                 <i class="material-icons">bar_chart</i>
                 Laporan
             </button>
@@ -934,9 +1020,16 @@
         
         let cart = JSON.parse(localStorage.getItem('kipos_cart')) || {};
         let saleHistory = JSON.parse(localStorage.getItem('kipos_sale_history')) || [];
-        let currentPage = 'landing-page';
+        let currentPage = 'kipos-loader';
         const pageHistory = [];
         const isVerifiedDevice = localStorage.getItem('is_verified_device') === 'true';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('kipos-loader');
+            setTimeout(() => {
+                showPage('landing-page');
+            }, 3000); 
+        });
 
         function showAppUI(show) {
             const header = document.getElementById('app-header');
@@ -1005,7 +1098,7 @@
         }
 
         function showPageWithLoader(pageId) {
-            showPage('loader-page');
+            showPage('general-loader');
             setTimeout(() => {
                 showPage(pageId);
                 if (pageId === 'dashboard-page') renderDashboard();
@@ -1036,6 +1129,8 @@
         function handleRegister(event) {
             event.preventDefault();
             const storeName = document.getElementById('store-name').value;
+            const ownerName = document.getElementById('owner-name').value;
+            const businessCategory = document.getElementById('business-category').value;
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
             
@@ -1056,7 +1151,7 @@
         function handleOtpVerification(event) {
             event.preventDefault();
             const otp = [...document.querySelectorAll('#otp-verification-page .otp-inputs input')].map(input => input.value).join('');
-            if (otp === '123456') { // Contoh OTP
+            if (otp === '123456') {
                 localStorage.setItem('is_verified_device', 'true');
                 alert('Verifikasi berhasil!');
                 showPageWithLoader('onboarding-page');
@@ -1201,7 +1296,7 @@
             saveSaleHistory();
             
             alert('Pembayaran berhasil! Total: Rp ' + transactionTotal.toLocaleString('id-ID'));
-            showPage('home-page');
+            showPageWithLoader('home-page');
         }
 
         function renderDashboard() {
@@ -1278,14 +1373,6 @@
                 monthlyChart.appendChild(bar);
             });
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            updateCartCount();
-            renderDashboard();
-            renderProductManagement();
-            renderSaleHistory();
-            renderReports();
-        });
     </script>
 </body>
 </html>
