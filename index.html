@@ -152,8 +152,8 @@
 
         .page {
             display: none;
-            min-height: calc(100vh - 60px); /* Adjust based on header/footer height */
-            padding-bottom: 70px;
+            min-height: calc(100vh - 60px - 60px); /* Adjust for header and footer */
+            padding-bottom: 20px;
         }
 
         .page.active {
@@ -209,6 +209,7 @@
             z-index: 9999;
         }
         
+        /* Loader Gear */
         .loader-gear-wrapper {
             position: relative;
             width: 80px;
@@ -229,6 +230,7 @@
             font-size: 1.2em;
         }
         
+        /* Loader kiPOS */
         .loader-kipos .logo-icon {
             font-size: 5em;
             color: var(--primary-color);
@@ -254,6 +256,13 @@
         }
 
         /* --- Skeleton Loader --- */
+        .skeleton-loader-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: calc(100vh - 60px - 60px);
+            padding: 15px;
+        }
         .skeleton {
             animation: pulse 1.5s infinite;
         }
@@ -322,6 +331,7 @@
             justify-content: center;
             padding: 20px;
             text-align: center;
+            min-height: calc(100vh);
         }
         .auth-container .auth-header {
             margin-bottom: 40px;
@@ -392,7 +402,7 @@
             font-weight: 600;
         }
         
-        .product-list, .cart-list {
+        .product-list, .category-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
@@ -509,11 +519,6 @@
             font-size: 1.2em;
             font-weight: 700;
         }
-        .category-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-        }
         .category-card {
             background-color: var(--card-bg);
             border-radius: 12px;
@@ -591,6 +596,24 @@
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
+        }
+
+        #onboarding-page .onboarding-icon,
+        #onboarding-page h2,
+        #onboarding-page p {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        #landing-page .logo-icon,
+        #landing-page h1,
+        #landing-page p,
+        .landing-btn-group {
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
