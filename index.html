@@ -152,6 +152,8 @@
 
         .page {
             display: none;
+            min-height: calc(100vh - 60px); /* Adjust based on header/footer height */
+            padding-bottom: 70px;
         }
 
         .page.active {
@@ -207,7 +209,6 @@
             z-index: 9999;
         }
         
-        /* Loader Gear */
         .loader-gear-wrapper {
             position: relative;
             width: 80px;
@@ -215,6 +216,8 @@
             margin-bottom: 20px;
         }
         .loader-gear {
+            font-size: 80px;
+            color: var(--text-light);
             animation: spin 3s linear infinite;
         }
         .loader-gear-inside {
@@ -226,7 +229,6 @@
             font-size: 1.2em;
         }
         
-        /* Loader kiPOS */
         .loader-kipos .logo-icon {
             font-size: 5em;
             color: var(--primary-color);
@@ -554,9 +556,11 @@
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
             max-width: calc(100% - 30px);
+            pointer-events: none;
         }
         .add-to-cart-notification.visible {
             opacity: 1;
+            pointer-events: auto;
         }
         .add-to-cart-notification .item-name {
             font-weight: 600;
@@ -604,9 +608,10 @@
         <div class="content" id="app-content">
             <div id="general-loader" class="page loader-page" style="display:none;">
                 <div class="loader-gear-wrapper">
-                    <i class="material-icons loader-gear" style="font-size: 80px; color: var(--text-light);">settings</i>
+                    <i class="material-icons loader-gear">settings</i>
                     <i class="material-icons loader-gear-inside">build</i>
                 </div>
+                <h3>Memuat...</h3>
             </div>
             
             <div id="kipos-loader" class="page loader-page active">
@@ -662,7 +667,7 @@
                     </div>
                     <div class="input-group">
                         <i class="material-icons-outlined">category</i>
-                        <select id="business-category">
+                        <select id="business-category" required>
                             <option value="" disabled selected>Pilih Kategori Bisnis</option>
                             <option value="food_beverage">Makanan & Minuman</option>
                             <option value="retail">Retail</option>
@@ -710,32 +715,17 @@
                 </div>
                 <form class="auth-form" onsubmit="handleOtpVerification(event)">
                     <div class="otp-inputs">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
-                        <input type="text" maxlength="1" required oninput="moveToNext(this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
+                        <input type="text" maxlength="1" required oninput="moveToNext(this)" onkeydown="moveToPrev(event, this)">
                     </div>
                     <button type="submit" class="btn">Verifikasi</button>
                 </form>
                 <div class="auth-footer">
                     Tidak menerima kode? <a href="#">Kirim Ulang</a>
-                </div>
-            </div>
-
-            <div id="skeleton-loader-page" class="page" style="display:none;">
-                <div class="card skeleton-card">
-                    <div class="skeleton skeleton-block title"></div>
-                    <div class="skeleton skeleton-block text"></div>
-                </div>
-                <div class="card skeleton-card">
-                    <div class="skeleton skeleton-block title"></div>
-                    <div class="skeleton skeleton-block text"></div>
-                </div>
-                <div class="card skeleton-card">
-                    <div class="skeleton skeleton-block title"></div>
-                    <div class="skeleton skeleton-block text"></div>
                 </div>
             </div>
 
@@ -879,7 +869,7 @@
     </div>
     
     <div id="add-to-cart-notification" class="add-to-cart-notification">
-        <span id="notification-text"></span>
+        <span id="notification-text" class="item-name"></span>
         <div class="item-control">
             <button onclick="updateQuantityFromNotification(-1)">-</button>
             <span id="notification-quantity">1</span>
@@ -988,7 +978,15 @@
         }
 
         function showPageWithLoader(pageId) {
-            showPage('general-loader');
+            document.getElementById('add-to-cart-notification').classList.remove('visible');
+            const flow = document.getElementById(pageId).getAttribute('data-flow');
+            
+            if(flow === 'app') {
+                showPage('general-loader');
+            } else {
+                showPage('kipos-loader');
+            }
+
             setTimeout(() => {
                 showPage(pageId);
                 if (pageId === 'dashboard-page') renderDashboard();
@@ -1055,6 +1053,14 @@
                 const nextInput = currentInput.nextElementSibling;
                 if (nextInput) {
                     nextInput.focus();
+                }
+            }
+        }
+        function moveToPrev(event, currentInput) {
+            if (event.key === 'Backspace' && currentInput.value.length === 0) {
+                const prevInput = currentInput.previousElementSibling;
+                if (prevInput) {
+                    prevInput.focus();
                 }
             }
         }
