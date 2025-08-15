@@ -1152,6 +1152,20 @@
                     Tidak menerima kode? <a href="#">Kirim Ulang</a>
                 </div>
             </div>
+            <div id="skeleton-loader-page" class="page" style="display:none;">
+                <div class="card skeleton-card">
+                    <div class="skeleton skeleton-block title"></div>
+                    <div class="skeleton skeleton-block text"></div>
+                </div>
+                <div class="card skeleton-card">
+                    <div class="skeleton skeleton-block title"></div>
+                    <div class="skeleton skeleton-block text"></div>
+                </div>
+                <div class="card skeleton-card">
+                    <div class="skeleton skeleton-block title"></div>
+                    <div class="skeleton skeleton-block text"></div>
+                </div>
+            </div>
 
             <div id="onboarding-page" class="page" data-flow="app">
                 <i class="material-icons onboarding-icon">local_mall</i>
@@ -1185,15 +1199,15 @@
             <div id="home-page" class="page" data-flow="app">
                 <h2>Pilih Kategori</h2>
                 <div class="category-list">
-                    <div class="card category-card" onclick="showProductList('Makanan')">
+                    <div class="card category-card" onclick="filterProducts('Makanan')">
                         <i class="material-icons-outlined">restaurant</i>
                         <h3>Makanan</h3>
                     </div>
-                    <div class="card category-card" onclick="showProductList('Minuman')">
+                    <div class="card category-card" onclick="filterProducts('Minuman')">
                         <i class="material-icons-outlined">local_cafe</i>
                         <h3>Minuman</h3>
                     </div>
-                    <div class="card category-card" onclick="showProductList('Snack')">
+                    <div class="card category-card" onclick="filterProducts('Snack')">
                         <i class="material-icons-outlined">fastfood</i>
                         <h3>Snack</h3>
                     </div>
@@ -1763,6 +1777,18 @@
                 `;
                 productListContainer.appendChild(productCard);
             });
+            showPage('product-list-page')
+        }
+
+        
+        function addToCart(id, name, price, img) {
+            if (cart[id]) {
+                cart[id].quantity++;
+            } else {
+                cart[id] = { id, name, price, img, quantity: 1 };
+            }
+            saveCart();
+            alert(`${name} ditambahkan ke keranjang!`);
         }
 
         // 3. Implement Discounts

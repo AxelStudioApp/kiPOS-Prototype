@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <style>
         :root {
             --primary-color: #38A169;
@@ -22,6 +24,22 @@
             --green-light: #F0FFF4;
             --blue-light: #EBF4FF;
             --red-light: #FFF5F5;
+            --danger-color: #E53E3E;
+        }
+
+        [data-theme='dark'] {
+            --primary-color: #48BB78;
+            --secondary-color: #F6E05E;
+            --text-color: #CBD5E0;
+            --text-light: #A0AEC0;
+            --bg-color: #1A202C;
+            --card-bg: #2D3748;
+            --border-color: #4A5568;
+            --accent-color: #667EEA;
+            --green-light: #2C5237;
+            --blue-light: #2A4365;
+            --red-light: #443333;
+            --danger-color: #F56565;
         }
 
         * {
@@ -34,6 +52,7 @@
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
@@ -60,6 +79,7 @@
             top: 0;
             z-index: 1000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
         }
 
         .header .logo {
@@ -67,10 +87,20 @@
             font-weight: 700;
         }
 
-        .header .cart-icon {
+        .header .cart-icon, .header .menu-icon {
             font-size: 1.8em;
             cursor: pointer;
             position: relative;
+        }
+        
+        .header .menu-icon {
+            display: none;
+        }
+        .header.app-mode .menu-icon {
+            display: block;
+        }
+        .header.app-mode .cart-icon {
+            display: none;
         }
 
         .cart-count {
@@ -125,6 +155,7 @@
             background-color: var(--card-bg);
             z-index: 1000;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
         .footer-nav button {
@@ -164,8 +195,9 @@
             padding: 20px;
             margin-bottom: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: background-color 0.3s, box-shadow 0.3s;
         }
-        
+
         .btn {
             background-color: var(--primary-color);
             color: #fff;
@@ -190,8 +222,14 @@
         .btn.secondary:hover {
             background-color: var(--green-light);
         }
+        .btn.danger {
+            background-color: var(--danger-color);
+        }
+        .btn.danger:hover {
+            background-color: #C53030;
+        }
 
-        /* --- Custom Loaders --- */
+        /* --- Custom Loaders & Skeletons --- */
         .loader-page {
             display: flex;
             flex-direction: column;
@@ -243,12 +281,11 @@
             100% { opacity: 0.5; }
         }
 
-        /* --- Skeleton Loader --- */
         .skeleton {
             animation: pulse 1.5s infinite;
         }
         .skeleton-block {
-            background-color: #E2E8F0;
+            background-color: var(--border-color);
             border-radius: 4px;
         }
         .skeleton-card {
@@ -346,6 +383,8 @@
             font-family: 'Poppins', sans-serif;
             font-size: 1em;
             background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
         }
         .auth-form select {
             padding-left: 50px;
@@ -382,7 +421,7 @@
             font-weight: 600;
         }
 
-        /* --- Other Pages (Same as v4) --- */
+        /* --- Other Pages --- */
         #onboarding-page {
             display: flex;
             flex-direction: column;
@@ -415,6 +454,7 @@
             border: none;
             font-weight: 600;
         }
+
         #dashboard-page .summary-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -439,26 +479,57 @@
         #dashboard-page .summary-card .label {
             font-size: 0.9em;
         }
-        #dashboard-page .chart-container {
+        #dashboard-page .top-products-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #dashboard-page .top-products-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #dashboard-page .top-products-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .chart-container {
             margin-top: 20px;
-            height: 200px;
+            height: 250px;
             background-color: var(--card-bg);
             border-radius: 12px;
             padding: 15px;
             position: relative;
         }
-        .bar-chart-container {
+
+        .category-filter {
             display: flex;
-            justify-content: space-around;
-            align-items: flex-end;
-            height: 100%;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 5px;
+            white-space: nowrap;
         }
-        .bar-chart-container .bar {
-            width: 15%;
+        .category-filter button {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            flex-shrink: 0;
+        }
+        .category-filter button.active {
             background-color: var(--primary-color);
-            border-radius: 4px 4px 0 0;
-            transition: height 0.5s;
+            color: #fff;
+            border-color: var(--primary-color);
         }
+        
         #manage-products-page .product-item {
             display: flex;
             align-items: center;
@@ -485,6 +556,36 @@
             color: var(--primary-color);
             font-weight: 500;
         }
+        #manage-products-page .product-item .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        #manage-products-page .product-item .action-buttons button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: var(--text-light);
+        }
+        #manage-products-page .product-item .action-buttons button.edit {
+            color: var(--primary-color);
+        }
+        #manage-products-page .product-item .action-buttons button.delete {
+            color: var(--danger-color);
+        }
+        #manage-products-page .add-product-btn {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        
         #sale-history-page .history-item {
             display: flex;
             justify-content: space-between;
@@ -511,6 +612,30 @@
             font-weight: 700;
             color: var(--primary-color);
             font-size: 1.1em;
+        }
+        
+        #payment-page .discount-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #payment-page .discount-container input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 8px 0 0 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1em;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        #payment-page .discount-container button {
+            background-color: var(--secondary-color);
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-weight: 600;
         }
         #payment-page .payment-summary-item {
             display: flex;
@@ -562,7 +687,16 @@
             cursor: pointer;
             font-weight: 500;
         }
-        .product-list, .cart-list {
+        #payment-page #qr-code-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+            padding: 20px;
+            background-color: var(--bg-color);
+            border-radius: 12px;
+        }
+        .product-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
@@ -703,13 +837,183 @@
         }
         #report-page .chart-container {
             margin-top: 20px;
-            height: 200px;
+            height: 250px;
             background-color: var(--card-bg);
             border-radius: 12px;
             padding: 15px;
             position: relative;
         }
-        
+
+        #settings-page .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #settings-page .settings-item:last-child {
+            border-bottom: none;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        #profile-page .profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #profile-page .profile-form input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1em;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        #profile-page .profile-form .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            margin: 0 auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: var(--text-light);
+        }
+
+        .modal {
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .modal-content .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .modal-content .form-group {
+            margin-bottom: 15px;
+        }
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        .modal-content button {
+            margin-top: 15px;
+        }
+
+        .notification-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3000;
+            width: 90%;
+            max-width: 400px;
+        }
+        .notification {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .notification.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .notification.error {
+            background-color: var(--danger-color);
+        }
     </style>
 </head>
 <body>
@@ -720,6 +1024,9 @@
             <div class="cart-icon" onclick="showPage('cart-page')">
                 <i class="material-icons">shopping_cart</i>
                 <span id="cart-count" class="cart-count" style="display:none;">0</span>
+            </div>
+            <div class="menu-icon" onclick="showPage('settings-page')">
+                <i class="material-icons-outlined">menu</i>
             </div>
         </div>
 
@@ -739,10 +1046,10 @@
             <div id="landing-page" class="page" data-flow="auth">
                 <i class="material-icons logo-icon">storefront</i>
                 <h1>kiPOS</h1>
-                <p>Solusi Point of Sales untuk bisnis Anda</p>
+                <p data-translate="welcome">Solusi Point of Sales untuk bisnis Anda</p>
                 <div class="landing-btn-group">
-                    <button class="btn" onclick="showPage('login-page')">Masuk</button>
-                    <button class="btn secondary" onclick="showPage('register-page')">Daftar</button>
+                    <button class="btn" onclick="showPage('login-page')" data-translate="login">Masuk</button>
+                    <button class="btn secondary" onclick="showPage('register-page')" data-translate="register">Daftar</button>
                 </div>
             </div>
 
@@ -761,7 +1068,7 @@
                         <input type="password" id="login-password" placeholder="Password" required>
                     </div>
                     <a href="#" onclick="showPage('forgot-password-page')">Lupa password?</a>
-                    <button type="submit" class="btn">Masuk</button>
+                    <button type="submit" class="btn" data-translate="login">Masuk</button>
                 </form>
                 <div class="auth-footer">
                     Belum punya akun? <a href="#" onclick="showPage('register-page')">Daftar sekarang</a>
@@ -800,7 +1107,7 @@
                         <i class="material-icons-outlined">lock</i>
                         <input type="password" id="register-password" placeholder="Password" required>
                     </div>
-                    <button type="submit" class="btn">Daftar</button>
+                    <button type="submit" class="btn" data-translate="register">Daftar</button>
                 </form>
                 <div class="auth-footer">
                     Sudah punya akun? <a href="#" onclick="showPage('login-page')">Masuk di sini</a>
@@ -845,7 +1152,6 @@
                     Tidak menerima kode? <a href="#">Kirim Ulang</a>
                 </div>
             </div>
-
             <div id="skeleton-loader-page" class="page" style="display:none;">
                 <div class="card skeleton-card">
                     <div class="skeleton skeleton-block title"></div>
@@ -882,22 +1188,26 @@
                 </div>
                 <div class="card chart-container">
                     <h3>Penjualan Mingguan</h3>
-                    <div class="bar-chart-container" id="weekly-sales-chart"></div>
+                    <canvas id="weekly-sales-chart"></canvas>
+                </div>
+                <div class="card">
+                    <h3>Produk Terlaris</h3>
+                    <ul id="top-products" class="top-products-list"></ul>
                 </div>
             </div>
 
             <div id="home-page" class="page" data-flow="app">
                 <h2>Pilih Kategori</h2>
                 <div class="category-list">
-                    <div class="card category-card" onclick="showProductList('Makanan')">
+                    <div class="card category-card" onclick="filterProducts('Makanan')">
                         <i class="material-icons-outlined">restaurant</i>
                         <h3>Makanan</h3>
                     </div>
-                    <div class="card category-card" onclick="showProductList('Minuman')">
+                    <div class="card category-card" onclick="filterProducts('Minuman')">
                         <i class="material-icons-outlined">local_cafe</i>
                         <h3>Minuman</h3>
                     </div>
-                    <div class="card category-card" onclick="showProductList('Snack')">
+                    <div class="card category-card" onclick="filterProducts('Snack')">
                         <i class="material-icons-outlined">fastfood</i>
                         <h3>Snack</h3>
                     </div>
@@ -906,6 +1216,12 @@
 
             <div id="product-list-page" class="page" data-flow="app">
                 <h2 id="product-category-title">Produk</h2>
+                <div class="category-filter" id="product-filter-tabs">
+                    <button class="active" onclick="filterProducts('all')">Semua</button>
+                    <button onclick="filterProducts('Makanan')">Makanan</button>
+                    <button onclick="filterProducts('Minuman')">Minuman</button>
+                    <button onclick="filterProducts('Snack')">Snack</button>
+                </div>
                 <div class="product-list" id="product-items-container"></div>
             </div>
 
@@ -925,12 +1241,16 @@
             <div id="payment-page" class="page" data-flow="app">
                 <h2>Pembayaran</h2>
                 <div class="card">
+                    <div class="discount-container">
+                        <input type="number" id="discount-input" placeholder="Diskon (%)" min="0" max="100">
+                        <button onclick="applyDiscount()">Terapkan</button>
+                    </div>
                     <div class="payment-summary-item">
                         <span>Total Belanja</span>
                         <span id="payment-subtotal">Rp 0</span>
                     </div>
                     <div class="payment-summary-item">
-                        <span>Diskon (0%)</span>
+                        <span>Diskon (<span id="discount-percentage-label">0%</span>)</span>
                         <span id="payment-discount">Rp 0</span>
                     </div>
                     <hr style="border-color: var(--border-color); margin: 10px 0;">
@@ -943,15 +1263,16 @@
                 <div class="card">
                     <h3>Pilih Metode Pembayaran</h3>
                     <div class="payment-method-grid">
-                        <div class="method-card active" onclick="selectPaymentMethod(this)">
+                        <div class="method-card active" onclick="selectPaymentMethod(this, 'tunai')">
                             <i class="material-icons-outlined">payments</i>
                             <h4>Tunai</h4>
                         </div>
-                        <div class="method-card" onclick="selectPaymentMethod(this)">
+                        <div class="method-card" onclick="selectPaymentMethod(this, 'qris')">
                             <i class="material-icons-outlined">qr_code_2</i>
                             <h4>QRIS</h4>
                         </div>
                     </div>
+                    <div id="qr-code-container" style="display: none;"></div>
                     <button class="btn" style="margin-top: 20px;" onclick="completePayment()">Konfirmasi Pembayaran</button>
                     <p class="back-to-cart" onclick="showPage('cart-page')">Kembali ke Keranjang</p>
                 </div>
@@ -960,6 +1281,40 @@
             <div id="manage-products-page" class="page" data-flow="app">
                 <h2>Manajemen Produk</h2>
                 <div class="card" id="manage-product-list"></div>
+                <button class="add-product-btn" onclick="openAddProductModal()">
+                    <i class="material-icons-outlined" style="margin-right: 5px;">add</i> Tambah Produk Baru
+                </button>
+            </div>
+            
+            <div id="add-edit-product-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-btn" onclick="closeModal('add-edit-product-modal')">&times;</span>
+                    <h3 id="modal-title">Tambah Produk Baru</h3>
+                    <form id="product-form">
+                        <input type="hidden" id="product-id">
+                        <div class="form-group">
+                            <label for="product-category">Kategori</label>
+                            <select id="product-category" required>
+                                <option value="Makanan">Makanan</option>
+                                <option value="Minuman">Minuman</option>
+                                <option value="Snack">Snack</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-name">Nama Produk</label>
+                            <input type="text" id="product-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-price">Harga (Rp)</label>
+                            <input type="number" id="product-price" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="product-img-url">URL Gambar</label>
+                            <input type="text" id="product-img-url" placeholder="Opsional">
+                        </div>
+                        <button type="submit" class="btn" id="modal-submit-btn">Simpan</button>
+                    </form>
+                </div>
             </div>
 
             <div id="sale-history-page" class="page" data-flow="app">
@@ -971,9 +1326,56 @@
                 <h2>Laporan Penjualan</h2>
                 <div class="card chart-container">
                     <h3>Penjualan Bulan Ini</h3>
-                    <div class="bar-chart-container" id="monthly-sales-chart"></div>
+                    <canvas id="monthly-sales-chart"></canvas>
                 </div>
             </div>
+
+            <div id="settings-page" class="page" data-flow="app">
+                <h2>Pengaturan</h2>
+                <div class="card">
+                    <div class="settings-item" onclick="showPage('profile-page')">
+                        <span>Profil Pengguna</span>
+                        <i class="material-icons-outlined">chevron_right</i>
+                    </div>
+                    <div class="settings-item">
+                        <span>Mode Gelap</span>
+                        <label class="switch">
+                            <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <span>Ganti Bahasa</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button onclick="setLanguage('en')">EN</button>
+                            <button onclick="setLanguage('id')">ID</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn danger" onclick="confirmLogout()">Keluar</button>
+            </div>
+            
+            <div id="profile-page" class="page" data-flow="app">
+                <h2>Profil Pengguna</h2>
+                <div class="card">
+                    <div class="profile-avatar">
+                        <i class="material-icons-outlined">person</i>
+                    </div>
+                    <form class="profile-form" onsubmit="updateProfile(event)">
+                        <label for="profile-name">Nama Pengguna</label>
+                        <input type="text" id="profile-name" value="Admin kiPOS" required>
+                        <label for="profile-email">Email</label>
+                        <input type="email" id="profile-email" value="admin@kipos.com" required>
+                        <button type="submit" class="btn">Simpan Perubahan</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="offline-notification" class="notification error" style="display: none;">
+                <i class="material-icons">cloud_off</i>
+                <span>Anda sedang offline. Data akan disinkronkan saat online.</span>
+            </div>
+            
         </div>
 
         <div class="footer-nav" id="app-footer-nav" style="display: none;">
@@ -998,37 +1400,162 @@
                 Laporan
             </button>
         </div>
+
+        <div class="notification-container" id="notification-container"></div>
     </div>
 
     <script>
         const products = {
             'Makanan': [
-                { id: 1, name: 'Nasi Goreng Spesial', price: 20000, img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500' },
-                { id: 2, name: 'Ayam Bakar Madu', price: 25000, img: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=500' },
-                { id: 3, name: 'Sate Ayam Bumbu Kacang', price: 18000, img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500' },
+                { id: 1, name: 'Nasi Goreng Spesial', price: 20000, img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500', category: 'Makanan' },
+                { id: 2, name: 'Ayam Bakar Madu', price: 25000, img: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=500', category: 'Makanan' },
+                { id: 3, name: 'Sate Ayam Bumbu Kacang', price: 18000, img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500', category: 'Makanan' },
             ],
             'Minuman': [
-                { id: 4, name: 'Es Teh Manis', price: 5000, img: 'https://images.unsplash.com/photo-1521587765099-ef13a693c06e?w=500' },
-                { id: 5, name: 'Kopi Susu Gula Aren', price: 12000, img: 'https://images.unsplash.com/photo-1551028150-64b9f398f67e?w=500' },
-                { id: 6, name: 'Jus Jeruk Segar', price: 10000, img: 'https://images.unsplash.com/photo-1579737207905-ac1ae933f7ed?w=500' },
+                { id: 4, name: 'Es Teh Manis', price: 5000, img: 'https://images.unsplash.com/photo-1521587765099-ef13a693c06e?w=500', category: 'Minuman' },
+                { id: 5, name: 'Kopi Susu Gula Aren', price: 12000, img: 'https://images.unsplash.com/photo-1551028150-64b9f398f67e?w=500', category: 'Minuman' },
+                { id: 6, name: 'Jus Jeruk Segar', price: 10000, img: 'https://images.unsplash.com/photo-1579737207905-ac1ae933f7ed?w=500', category: 'Minuman' },
             ],
             'Snack': [
-                { id: 7, name: 'Kentang Goreng Keju', price: 15000, img: 'https://images.unsplash.com/photo-1628178129037-184514ac8f25?w=500' },
-                { id: 8, name: 'Roti Bakar Coklat', price: 12000, img: 'https://images.unsplash.com/photo-1558961363-fa14f3299a9a?w=500' },
+                { id: 7, name: 'Kentang Goreng Keju', price: 15000, img: 'https://images.unsplash.com/photo-1628178129037-184514ac8f25?w=500', category: 'Snack' },
+                { id: 8, name: 'Roti Bakar Coklat', price: 12000, img: 'https://images.unsplash.com/photo-1558961363-fa14f3299a9a?w=500', category: 'Snack' },
             ]
         };
-        
+
+        const translations = {
+            en: {
+                welcome: 'Point of Sales solution for your business',
+                login: 'Login',
+                register: 'Register',
+                dashboard: 'Dashboard',
+                sales: 'Sales',
+                products: 'Products',
+                history: 'History',
+                reports: 'Reports',
+                cart: 'Cart',
+                payment: 'Payment',
+                addProduct: 'Add Product',
+                editProduct: 'Edit Product',
+                delete: 'Delete',
+                all: 'All',
+                food: 'Food',
+                drink: 'Drink',
+                snack: 'Snack',
+                totalSalesToday: 'Today\'s Total Sales',
+                totalProfitToday: 'Today\'s Total Profit',
+                weeklySales: 'Weekly Sales',
+                topProducts: 'Top Selling Products',
+                productManagement: 'Product Management',
+                addNewProduct: 'Add New Product',
+                editProductModal: 'Edit Product',
+                productName: 'Product Name',
+                price: 'Price',
+                imageURL: 'Image URL',
+                save: 'Save',
+                saleHistory: 'Sale History',
+                noSaleHistory: 'No sale history yet.',
+                monthlySales: 'Monthly Sales',
+                settings: 'Settings',
+                userProfile: 'User Profile',
+                darkMode: 'Dark Mode',
+                changeLanguage: 'Change Language',
+                logout: 'Logout',
+                saveChanges: 'Save Changes',
+                emptyCart: 'Your cart is empty.',
+                total: 'Total:',
+                payNow: 'Pay Now',
+                backToCart: 'Back to Cart',
+                paymentTitle: 'Payment',
+                subtotal: 'Subtotal',
+                discount: 'Discount',
+                totalPayment: 'Total Payment',
+                selectMethod: 'Select Payment Method',
+                cash: 'Cash',
+                confirmPayment: 'Confirm Payment',
+                offlineMessage: 'You are offline. Data will be synced when you\'re back online.',
+            },
+            id: {
+                welcome: 'Solusi Point of Sales untuk bisnis Anda',
+                login: 'Masuk',
+                register: 'Daftar',
+                dashboard: 'Dashboard',
+                sales: 'Penjualan',
+                products: 'Produk',
+                history: 'Riwayat',
+                reports: 'Laporan',
+                cart: 'Keranjang',
+                payment: 'Pembayaran',
+                addProduct: 'Tambah Produk',
+                editProduct: 'Edit Produk',
+                delete: 'Hapus',
+                all: 'Semua',
+                food: 'Makanan',
+                drink: 'Minuman',
+                snack: 'Snack',
+                totalSalesToday: 'Total Penjualan Hari Ini',
+                totalProfitToday: 'Keuntungan Hari Ini',
+                weeklySales: 'Penjualan Mingguan',
+                topProducts: 'Produk Terlaris',
+                productManagement: 'Manajemen Produk',
+                addNewProduct: 'Tambah Produk Baru',
+                editProductModal: 'Ubah Produk',
+                productName: 'Nama Produk',
+                price: 'Harga',
+                imageURL: 'URL Gambar',
+                save: 'Simpan',
+                saleHistory: 'Riwayat Penjualan',
+                noSaleHistory: 'Belum ada riwayat penjualan.',
+                monthlySales: 'Penjualan Bulan Ini',
+                settings: 'Pengaturan',
+                userProfile: 'Profil Pengguna',
+                darkMode: 'Mode Gelap',
+                changeLanguage: 'Ganti Bahasa',
+                logout: 'Keluar',
+                saveChanges: 'Simpan Perubahan',
+                emptyCart: 'Keranjang belanja Anda kosong.',
+                total: 'Total:',
+                payNow: 'Bayar Sekarang',
+                backToCart: 'Kembali ke Keranjang',
+                paymentTitle: 'Pembayaran',
+                subtotal: 'Total Belanja',
+                discount: 'Diskon',
+                totalPayment: 'Total Pembayaran',
+                selectMethod: 'Pilih Metode Pembayaran',
+                cash: 'Tunai',
+                confirmPayment: 'Konfirmasi Pembayaran',
+                offlineMessage: 'Anda sedang offline. Data akan disinkronkan saat online.',
+            }
+        };
+
+        let currentLang = localStorage.getItem('language') || 'id';
         let cart = JSON.parse(localStorage.getItem('kipos_cart')) || {};
         let saleHistory = JSON.parse(localStorage.getItem('kipos_sale_history')) || [];
         let currentPage = 'kipos-loader';
         const pageHistory = [];
+        let weeklyChart, monthlyChart;
+        let selectedPaymentMethod = 'tunai';
+        let discountPercentage = 0;
         const isVerifiedDevice = localStorage.getItem('is_verified_device') === 'true';
+        let productsData = JSON.parse(localStorage.getItem('kipos_products')) || products;
 
         document.addEventListener('DOMContentLoaded', () => {
+            document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+            document.getElementById('dark-mode-toggle').checked = localStorage.getItem('theme') === 'dark';
+            
+            setLanguage(currentLang);
             showPage('kipos-loader');
             setTimeout(() => {
-                showPage('landing-page');
-            }, 3000); 
+                showPage(isVerifiedDevice ? 'dashboard-page' : 'landing-page');
+            }, 2000); 
+
+            window.addEventListener('online', syncData);
+            window.addEventListener('offline', () => {
+                document.getElementById('offline-notification').style.display = 'flex';
+                showNotification(translations[currentLang].offlineMessage, 'error');
+            });
+            if (!navigator.onLine) {
+                document.getElementById('offline-notification').style.display = 'flex';
+            }
         });
 
         function showAppUI(show) {
@@ -1036,6 +1563,10 @@
             const footer = document.getElementById('app-footer-nav');
             header.style.display = show ? 'flex' : 'none';
             footer.style.display = show ? 'flex' : 'none';
+        }
+
+        function saveProducts() {
+            localStorage.setItem('kipos_products', JSON.stringify(productsData));
         }
 
         function saveCart() {
@@ -1061,7 +1592,7 @@
                 showAppUI(false);
             }
 
-            if (pageId !== currentPage && flow === document.getElementById(currentPage).getAttribute('data-flow')) {
+            if (pageId !== currentPage && flow === document.getElementById(currentPage).getAttribute('data-flow') && pageId !== 'general-loader' && pageId !== 'kipos-loader') {
                  pageHistory.push(currentPage);
             } else if (flow !== document.getElementById(currentPage).getAttribute('data-flow')) {
                  pageHistory.length = 0;
@@ -1077,9 +1608,7 @@
             }
 
             const header = document.querySelector('.header');
-            if (pageId === 'product-list-page' || pageId === 'payment-page') {
-                header.classList.add('app-mode');
-            } else if (flow === 'app' && pageId !== 'dashboard-page' && pageId !== 'home-page') {
+            if (pageId === 'product-list-page' || pageId === 'payment-page' || pageId === 'manage-products-page' || pageId === 'sale-history-page' || pageId === 'report-page' || pageId === 'settings-page' || pageId === 'profile-page') {
                 header.classList.add('app-mode');
             } else {
                 header.classList.remove('app-mode');
@@ -1087,7 +1616,7 @@
             
             currentPage = pageId;
         }
-        
+
         function goBack() {
             if (pageHistory.length > 0) {
                 const prevPage = pageHistory.pop();
@@ -1102,81 +1631,136 @@
             setTimeout(() => {
                 showPage(pageId);
                 if (pageId === 'dashboard-page') renderDashboard();
+                if (pageId === 'home-page') filterProducts('all');
                 if (pageId === 'manage-products-page') renderProductManagement();
                 if (pageId === 'sale-history-page') renderSaleHistory();
                 if (pageId === 'report-page') renderReports();
             }, 1000);
         }
 
-        // --- Auth Functions ---
-        function handleLogin(event) {
-            event.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+        // 1. Add/Edit/Delete Products in Product Management
+        function renderProductManagement() {
+            const productList = document.getElementById('manage-product-list');
+            productList.innerHTML = '';
+
+            const allProducts = Object.values(productsData).flat();
+            if (allProducts.length === 0) {
+                productList.innerHTML = `<p style="text-align: center; color: var(--text-light);">Belum ada produk.</p>`;
+                return;
+            }
+
+            allProducts.forEach(product => {
+                const item = document.createElement('div');
+                item.className = 'product-item';
+                item.innerHTML = `
+                    <img src="${product.img}" alt="${product.name}">
+                    <div class="details">
+                        <div class="name">${product.name}</div>
+                        <div class="price">Rp ${product.price.toLocaleString('id-ID')}</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="edit" onclick="openEditProductModal(${product.id}, '${product.category}')"><i class="material-icons-outlined">edit</i></button>
+                        <button class="delete" onclick="deleteProduct(${product.id}, '${product.category}')"><i class="material-icons-outlined">delete</i></button>
+                    </div>
+                `;
+                productList.appendChild(item);
+            });
+        }
+
+        function openAddProductModal() {
+            document.getElementById('product-form').reset();
+            document.getElementById('modal-title').textContent = translations[currentLang].addNewProduct;
+            document.getElementById('modal-submit-btn').textContent = translations[currentLang].save;
+            document.getElementById('product-id').value = '';
+            document.getElementById('add-edit-product-modal').classList.add('active');
+        }
+
+        function openEditProductModal(productId, category) {
+            const product = productsData[category].find(p => p.id === productId);
+            if (!product) return;
             
-            if (email === 'admin@kipos.com' && password === 'password') {
-                if (!isVerifiedDevice) {
-                    document.getElementById('verification-email-target').textContent = email;
-                    showPage('otp-verification-page');
+            document.getElementById('modal-title').textContent = translations[currentLang].editProductModal;
+            document.getElementById('modal-submit-btn').textContent = translations[currentLang].saveChanges;
+            document.getElementById('product-id').value = product.id;
+            document.getElementById('product-category').value = category;
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-price').value = product.price;
+            document.getElementById('product-img-url').value = product.img;
+
+            document.getElementById('add-edit-product-modal').classList.add('active');
+        }
+
+        document.getElementById('product-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const id = document.getElementById('product-id').value;
+            const category = document.getElementById('product-category').value;
+            const name = document.getElementById('product-name').value;
+            const price = parseInt(document.getElementById('product-price').value);
+            const img = document.getElementById('product-img-url').value || 'https://via.placeholder.com/150';
+
+            if (id) {
+                // Edit existing product
+                const oldCategory = Object.keys(productsData).find(cat => productsData[cat].some(p => p.id == id));
+                if (oldCategory && oldCategory !== category) {
+                    productsData[oldCategory] = productsData[oldCategory].filter(p => p.id != id);
+                    if (!productsData[category]) productsData[category] = [];
+                    productsData[category].push({ id: parseInt(id), name, price, img, category });
                 } else {
-                    showPageWithLoader('onboarding-page');
+                    const productIndex = productsData[category].findIndex(p => p.id == id);
+                    if (productIndex > -1) {
+                        productsData[category][productIndex] = { id: parseInt(id), name, price, img, category };
+                    }
                 }
+                showNotification('Produk berhasil diubah!');
             } else {
-                alert('Email atau password salah!');
+                // Add new product
+                const newId = Date.now();
+                if (!productsData[category]) productsData[category] = [];
+                productsData[category].push({ id: newId, name, price, img, category });
+                showNotification('Produk berhasil ditambahkan!');
+            }
+            saveProducts();
+            renderProductManagement();
+            closeModal('add-edit-product-modal');
+        });
+
+        function deleteProduct(productId, category) {
+            if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+                productsData[category] = productsData[category].filter(product => product.id !== productId);
+                saveProducts();
+                renderProductManagement();
+                showNotification('Produk berhasil dihapus!');
             }
         }
 
-        function handleRegister(event) {
-            event.preventDefault();
-            const storeName = document.getElementById('store-name').value;
-            const ownerName = document.getElementById('owner-name').value;
-            const businessCategory = document.getElementById('business-category').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            
-            localStorage.setItem('store_name', storeName);
-            document.getElementById('verification-email-target').textContent = email;
-            alert('Registrasi berhasil! Silakan cek email Anda untuk kode verifikasi.');
-            showPage('otp-verification-page');
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
         }
 
-        function handleForgotPassword(event) {
-            event.preventDefault();
-            const email = document.getElementById('forgot-email').value;
-            document.getElementById('verification-email-target').textContent = email;
-            alert('Kode OTP untuk reset password sudah dikirim ke email Anda.');
-            showPage('otp-verification-page');
-        }
-
-        function handleOtpVerification(event) {
-            event.preventDefault();
-            const otp = [...document.querySelectorAll('#otp-verification-page .otp-inputs input')].map(input => input.value).join('');
-            if (otp === '123456') {
-                localStorage.setItem('is_verified_device', 'true');
-                alert('Verifikasi berhasil!');
-                showPageWithLoader('onboarding-page');
-            } else {
-                alert('Kode OTP salah!');
-            }
-        }
-
-        function moveToNext(currentInput) {
-            if (currentInput.value.length === 1) {
-                const nextInput = currentInput.nextElementSibling;
-                if (nextInput) {
-                    nextInput.focus();
-                }
-            }
-        }
-
-        // --- App Logic (Same as v4) ---
-        function showProductList(category) {
+        // 2. Filter Products by Category
+        function filterProducts(category) {
             const productListContainer = document.getElementById('product-items-container');
-            const categoryTitle = document.getElementById('product-category-title');
-            productListContainer.innerHTML = '';
-            categoryTitle.textContent = category;
+            const categoryTabs = document.getElementById('product-filter-tabs');
             
-            const selectedProducts = products[category];
+            categoryTabs.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            categoryTabs.querySelector(`button[onclick="filterProducts('${category}')"]`).classList.add('active');
+
+            productListContainer.innerHTML = '';
+            
+            let selectedProducts;
+            if (category === 'all') {
+                selectedProducts = Object.values(productsData).flat();
+            } else {
+                selectedProducts = productsData[category];
+            }
+
+            if (!selectedProducts || selectedProducts.length === 0) {
+                productListContainer.innerHTML = `<p style="text-align: center; color: var(--text-light);">Tidak ada produk di kategori ini.</p>`;
+                return;
+            }
+
             selectedProducts.forEach(product => {
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
@@ -1193,9 +1777,10 @@
                 `;
                 productListContainer.appendChild(productCard);
             });
-            showPage('product-list-page');
+            showPage('product-list-page')
         }
 
+        
         function addToCart(id, name, price, img) {
             if (cart[id]) {
                 cart[id].quantity++;
@@ -1206,6 +1791,229 @@
             alert(`${name} ditambahkan ke keranjang!`);
         }
 
+        // 3. Implement Discounts
+        function applyDiscount() {
+            const discountInput = document.getElementById('discount-input').value;
+            discountPercentage = parseFloat(discountInput) || 0;
+            if (discountPercentage > 100) discountPercentage = 100;
+            if (discountPercentage < 0) discountPercentage = 0;
+            
+            document.getElementById('discount-input').value = discountPercentage;
+            document.getElementById('discount-percentage-label').textContent = `${discountPercentage}%`;
+            updatePaymentPage();
+            showNotification(`Diskon ${discountPercentage}% berhasil diterapkan!`);
+        }
+
+        // 4. Add Sales Analytics
+        function renderDashboard() {
+            const todaySales = saleHistory
+                .filter(sale => new Date(sale.id).toDateString() === new Date().toDateString())
+                .reduce((sum, sale) => sum + sale.total, 0);
+            
+            document.getElementById('total-sales').textContent = `Rp ${todaySales.toLocaleString('id-ID')}`;
+            document.getElementById('total-profit').textContent = `Rp ${(todaySales * 0.3).toLocaleString('id-ID')}`; 
+
+            const weeklySalesLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+            const weeklySalesData = [100000, 150000, 200000, 180000, 250000, 300000, todaySales];
+            const weeklyCtx = document.getElementById('weekly-sales-chart').getContext('2d');
+            if (weeklyChart) weeklyChart.destroy();
+            weeklyChart = new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: weeklySalesLabels,
+                    datasets: [{
+                        label: 'Penjualan',
+                        data: weeklySalesData,
+                        backgroundColor: 'rgba(56, 161, 105, 0.8)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `Rp ${value.toLocaleString('id-ID')}`
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            renderTopProducts();
+        }
+
+        function renderTopProducts() {
+            const topProducts = saleHistory.flatMap(sale => Object.values(sale.items))
+                .reduce((acc, item) => {
+                    acc[item.name] = (acc[item.name] || 0) + item.quantity;
+                    return acc;
+                }, {});
+
+            const sortedProducts = Object.entries(topProducts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const topProductsContainer = document.getElementById('top-products');
+            topProductsContainer.innerHTML = '';
+            if (sortedProducts.length === 0) {
+                topProductsContainer.innerHTML = `<p style="text-align: center; color: var(--text-light);">Belum ada produk terlaris.</p>`;
+                return;
+            }
+            sortedProducts.forEach(([name, quantity]) => {
+                const productElement = document.createElement('li');
+                productElement.innerHTML = `
+                    <span>${name}</span>
+                    <span>${quantity} terjual</span>
+                `;
+                topProductsContainer.appendChild(productElement);
+            });
+        }
+
+        // 5. Add User Profile & Settings
+        function updateProfile(event) {
+            event.preventDefault();
+            const name = document.getElementById('profile-name').value;
+            const email = document.getElementById('profile-email').value;
+
+            localStorage.setItem('user_name', name);
+            localStorage.setItem('user_email', email);
+            showNotification('Profil berhasil diperbarui!');
+        }
+
+        function confirmLogout() {
+            if (confirm('Apakah Anda yakin ingin keluar?')) {
+                localStorage.removeItem('is_verified_device');
+                localStorage.removeItem('user_name');
+                localStorage.removeItem('user_email');
+                localStorage.removeItem('theme');
+                localStorage.removeItem('language');
+                showPage('landing-page');
+            }
+        }
+
+        // 6. Add Multi-Language Support
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('language', lang);
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                element.textContent = translations[lang][key];
+            });
+            renderProductManagement();
+            renderCart();
+            renderDashboard();
+            renderSaleHistory();
+            renderReports();
+            showNotification(`Bahasa diubah menjadi ${lang.toUpperCase()}`);
+        }
+
+        // 7. Add Notifications
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `<i class="material-icons">${type === 'success' ? 'check_circle_outline' : 'error_outline'}</i><span>${message}</span>`;
+            
+            container.appendChild(notification);
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                notification.addEventListener('transitionend', () => notification.remove());
+            }, 3000);
+        }
+
+        // 8. Add Offline Mode
+        function syncData() {
+            if (navigator.onLine) {
+                document.getElementById('offline-notification').style.display = 'none';
+                // Implement logic to send data to server
+                showNotification('Aplikasi kembali online. Data berhasil disinkronkan.');
+            } else {
+                showNotification(translations[currentLang].offlineMessage, 'error');
+            }
+        }
+
+        // 9. Add QR Code for Payment
+        function selectPaymentMethod(element, method) {
+            document.querySelectorAll('.method-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+            selectedPaymentMethod = method;
+            
+            const qrContainer = document.getElementById('qr-code-container');
+            if (method === 'qris') {
+                qrContainer.style.display = 'flex';
+                generateQrCode();
+            } else {
+                qrContainer.style.display = 'none';
+            }
+        }
+
+        function generateQrCode() {
+            const qrContainer = document.getElementById('qr-code-container');
+            qrContainer.innerHTML = '';
+            
+            const subtotal = Object.values(cart).reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const qrData = `KIOS|${Date.now()}|${subtotal}|${discountPercentage}`;
+
+            new QRCode(qrContainer, {
+                text: qrData,
+                width: 150,
+                height: 150,
+            });
+        }
+
+        function completePayment() {
+            if (Object.keys(cart).length === 0) {
+                alert('Keranjang belanja kosong!');
+                return;
+            }
+
+            const subtotal = Object.values(cart).reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const discountAmount = (subtotal * discountPercentage) / 100;
+            const transactionTotal = subtotal - discountAmount;
+
+            const newTransaction = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+                items: JSON.parse(JSON.stringify(cart)),
+                subtotal: subtotal,
+                discount: discountAmount,
+                total: transactionTotal,
+                paymentMethod: selectedPaymentMethod,
+            };
+            saleHistory.push(newTransaction);
+            
+            cart = {};
+            discountPercentage = 0;
+            saveCart();
+            saveSaleHistory();
+            
+            showNotification('Pembayaran berhasil! Total: Rp ' + transactionTotal.toLocaleString('id-ID'));
+            showPageWithLoader('home-page');
+        }
+
+        // 10. Add Dark Mode
+        function toggleDarkMode() {
+            const root = document.documentElement;
+            const isDarkMode = root.getAttribute('data-theme') === 'dark';
+            if (isDarkMode) {
+                root.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                root.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // --- Core Functions ---
         function updateCartCount() {
             const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
             const cartCountElement = document.getElementById('cart-count');
@@ -1267,82 +2075,25 @@
 
         function updatePaymentPage() {
             const subtotal = Object.values(cart).reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const discountAmount = (subtotal * discountPercentage) / 100;
+            const totalAmount = subtotal - discountAmount;
+            
             document.getElementById('payment-subtotal').textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
-            document.getElementById('payment-total-amount').textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
-        }
+            document.getElementById('payment-discount').textContent = `Rp ${discountAmount.toLocaleString('id-ID')}`;
+            document.getElementById('payment-total-amount').textContent = `Rp ${totalAmount.toLocaleString('id-ID')}`;
+            document.getElementById('discount-percentage-label').textContent = `${discountPercentage}%`;
 
-        function selectPaymentMethod(element) {
-            document.querySelectorAll('.method-card').forEach(card => card.classList.remove('active'));
-            element.classList.add('active');
-        }
-
-        function completePayment() {
-            if (Object.keys(cart).length === 0) {
-                alert('Keranjang belanja kosong!');
-                return;
+            if (selectedPaymentMethod === 'qris') {
+                generateQrCode();
             }
-
-            const transactionTotal = Object.values(cart).reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const newTransaction = {
-                id: Date.now(),
-                date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-                items: JSON.parse(JSON.stringify(cart)),
-                total: transactionTotal,
-            };
-            saleHistory.push(newTransaction);
-            
-            cart = {};
-            saveCart();
-            saveSaleHistory();
-            
-            alert('Pembayaran berhasil! Total: Rp ' + transactionTotal.toLocaleString('id-ID'));
-            showPageWithLoader('home-page');
         }
 
-        function renderDashboard() {
-            const todaySales = saleHistory
-                .filter(sale => new Date(sale.id).toDateString() === new Date().toDateString())
-                .reduce((sum, sale) => sum + sale.total, 0);
-            
-            document.getElementById('total-sales').textContent = `Rp ${todaySales.toLocaleString('id-ID')}`;
-            document.getElementById('total-profit').textContent = `Rp ${(todaySales * 0.3).toLocaleString('id-ID')}`; 
-
-            const weeklySalesData = [100000, 150000, 200000, 180000, 250000, 300000, todaySales];
-            const weeklyChart = document.getElementById('weekly-sales-chart');
-            weeklyChart.innerHTML = '';
-            weeklySalesData.forEach(value => {
-                const bar = document.createElement('div');
-                bar.className = 'bar';
-                bar.style.height = `${(value / 350000) * 100}%`; 
-                weeklyChart.appendChild(bar);
-            });
-        }
-        
-        function renderProductManagement() {
-            const productList = document.getElementById('manage-product-list');
-            productList.innerHTML = '';
-            
-            const allProducts = [...products['Makanan'], ...products['Minuman'], ...products['Snack']];
-            allProducts.forEach(product => {
-                const item = document.createElement('div');
-                item.className = 'product-item';
-                item.innerHTML = `
-                    <img src="${product.img}" alt="${product.name}">
-                    <div class="details">
-                        <div class="name">${product.name}</div>
-                        <div class="price">Rp ${product.price.toLocaleString('id-ID')}</div>
-                    </div>
-                `;
-                productList.appendChild(item);
-            });
-        }
-        
         function renderSaleHistory() {
             const historyList = document.getElementById('sale-history-list');
             historyList.innerHTML = '';
             
             if (saleHistory.length === 0) {
-                historyList.innerHTML = `<p style="text-align: center; color: var(--text-light);">Belum ada riwayat penjualan.</p>`;
+                historyList.innerHTML = `<p style="text-align: center; color: var(--text-light);">${translations[currentLang].noSaleHistory}</p>`;
                 return;
             }
             
@@ -1361,17 +2112,101 @@
                 historyList.appendChild(item);
             });
         }
-        
+
         function renderReports() {
-            const monthlySalesData = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]; 
-            const monthlyChart = document.getElementById('monthly-sales-chart');
-            monthlyChart.innerHTML = '';
-            monthlySalesData.forEach(value => {
-                const bar = document.createElement('div');
-                bar.className = 'bar';
-                bar.style.height = `${(value / 120) * 100}%`;
-                monthlyChart.appendChild(bar);
+            const monthlySalesLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const monthlySalesData = [6500000, 5900000, 8000000, 8100000, 5600000, 5500000, 4000000, 7000000, 7500000, 6800000, 9000000, 8500000];
+            const monthlyCtx = document.getElementById('monthly-sales-chart').getContext('2d');
+            if (monthlyChart) monthlyChart.destroy();
+            monthlyChart = new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: monthlySalesLabels,
+                    datasets: [{
+                        label: 'Penjualan',
+                        data: monthlySalesData,
+                        fill: true,
+                        borderColor: 'rgba(56, 161, 105, 1)',
+                        backgroundColor: 'rgba(56, 161, 105, 0.2)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `Rp ${value.toLocaleString('id-ID')}`
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
             });
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (email === 'admin@kipos.com' && password === 'password') {
+                if (!isVerifiedDevice) {
+                    document.getElementById('verification-email-target').textContent = email;
+                    showPage('otp-verification-page');
+                } else {
+                    showPageWithLoader('onboarding-page');
+                }
+            } else {
+                showNotification('Email atau password salah!', 'error');
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const storeName = document.getElementById('store-name').value;
+            const ownerName = document.getElementById('owner-name').value;
+            const businessCategory = document.getElementById('business-category').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            localStorage.setItem('store_name', storeName);
+            document.getElementById('verification-email-target').textContent = email;
+            showNotification('Registrasi berhasil! Silakan cek email Anda untuk kode verifikasi.', 'success');
+            showPage('otp-verification-page');
+        }
+
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            const email = document.getElementById('forgot-email').value;
+            document.getElementById('verification-email-target').textContent = email;
+            showNotification('Kode OTP untuk reset password sudah dikirim ke email Anda.', 'success');
+            showPage('otp-verification-page');
+        }
+
+        function handleOtpVerification(event) {
+            event.preventDefault();
+            const otp = [...document.querySelectorAll('#otp-verification-page .otp-inputs input')].map(input => input.value).join('');
+            if (otp === '123456') {
+                localStorage.setItem('is_verified_device', 'true');
+                showNotification('Verifikasi berhasil!', 'success');
+                showPageWithLoader('onboarding-page');
+            } else {
+                showNotification('Kode OTP salah!', 'error');
+            }
+        }
+
+        function moveToNext(currentInput) {
+            if (currentInput.value.length === 1) {
+                const nextInput = currentInput.nextElementSibling;
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
         }
     </script>
 </body>
