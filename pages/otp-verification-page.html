@@ -1,0 +1,21 @@
+<div class="page auth-container" data-flow="auth" style="display:none;">
+    <div class="auth-header">
+        <i class="material-icons-outlined" style="font-size: 3em; color: var(--accent-color);">lock_open</i>
+        <h2>Verifikasi OTP</h2>
+        <p>Kode telah dikirim ke <span id="verification-email-target" style="font-weight: 600;"></span></p>
+    </div>
+    <form class="auth-form" onsubmit="handleOtpVerification(event)">
+        <div class="otp-inputs">
+            <input type="text" maxlength="1" required oninput="moveToNext(this)">
+            <input type="text" maxlength="1" required oninput="moveToNext(this)">
+            <input type="text" maxlength="1" required oninput="moveToNext(this)">
+            <input type="text" maxlength="1" required oninput="moveToNext(this)">
+            <input type="text" maxlength="1" required oninput="moveToNext(this)">
+            <input type="text" maxlength="1" required oninput="moveToNext(this)">
+        </div>
+        <button type="submit" class="btn">Verifikasi</button>
+    </form>
+    <div class="auth-footer">
+        Tidak menerima kode? <a href="#">Kirim Ulang</a>
+    </div>
+</div>

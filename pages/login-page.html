@@ -12,60 +12,11 @@
             <i class="material-icons-outlined">lock</i>
             <input type="password" id="login-password" placeholder="Password" required>
         </div>
-        <a href="#" onclick="showPage('forgot-password-page')">Lupa password?</a>
+        <a href="#" onclick="loadPage('forgot-password-page')">Lupa password?</a>
         <button type="submit" class="btn" data-translate="login">Masuk</button>
     </form>
     <div class="auth-footer">
-        Belum punya akun? <a href="#" onclick="showPage('register-page')">Daftar sekarang</a>
-    </div>
-</div>
-
-<div id="forgot-password-page" class="page auth-container" data-flow="auth" style="display:none;">
-    <div class="auth-header">
-        <h2>Lupa Password</h2>
-        <p>Masukkan email untuk verifikasi</p>
-    </div>
-    <form class="auth-form" onsubmit="handleForgotPassword(event)">
-        <div class="input-group">
-            <i class="material-icons-outlined">email</i>
-            <input type="email" id="forgot-email" placeholder="Email" required>
-        </div>
-        <button type="submit" class="btn">Kirim OTP</button>
-    </form>
-    <div class="auth-footer">
-        <a href="#" onclick="showPage('login-page')">Kembali ke Login</a>
-    </div>
-</div>
-
-<div id="otp-verification-page" class="page auth-container" data-flow="auth" style="display:none;">
-    <div class="auth-header">
-        <i class="material-icons-outlined" style="font-size: 3em; color: var(--accent-color);">lock_open</i>
-        <h2>Verifikasi OTP</h2>
-        <p>Kode telah dikirim ke <span id="verification-email-target" style="font-weight: 600;"></span></p>
-    </div>
-    <form class="auth-form" onsubmit="handleOtpVerification(event)">
-        <div class="otp-inputs">
-            <input type="text" maxlength="1" required oninput="moveToNext(this)">
-            <input type="text" maxlength="1" required oninput="moveToNext(this)">
-            <input type="text" maxlength="1" required oninput="moveToNext(this)">
-            <input type="text" maxlength="1" required oninput="moveToNext(this)">
-            <input type="text" maxlength="1" required oninput="moveToNext(this)">
-            <input type="text" maxlength="1" required oninput="moveToNext(this)">
-        </div>
-        <button type="submit" class="btn">Verifikasi</button>
-    </form>
-    <div class="auth-footer">
-        Tidak menerima kode? <a href="#">Kirim Ulang</a>
-    </div>
-</div>
-
-<div id="landing-page" class="page" data-flow="auth" style="display:none;">
-    <i class="material-icons logo-icon">storefront</i>
-    <h1>kiPOS</h1>
-    <p data-translate="welcome">Solusi Point of Sales untuk bisnis Anda</p>
-    <div class="landing-btn-group">
-        <button class="btn" onclick="showPage('login-page')" data-translate="login">Masuk</button>
-        <button class="btn secondary" onclick="showPage('register-page')" data-translate="register">Daftar</button>
+        Belum punya akun? <a href="#" onclick="loadPage('register-page')">Daftar sekarang</a>
     </div>
 </div>
 

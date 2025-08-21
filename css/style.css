@@ -223,7 +223,41 @@ h2 {
     align-items: center;
     min-height: 100vh;
     text-align: center;
-    background-color: var(--bg-color);
+}
+
+.loader {
+    display: flex;
+    justify-content: space-between;
+    width: 60px; /* Lebar total container dots */
+}
+
+.dot {
+    width: 15px;
+    height: 15px;
+    background-color: #3498db;
+    border-radius: 50%;
+    animation: jump 1.2s infinite ease-in-out;
+}
+
+.dot-1 {
+    animation-delay: -0.4s;
+}
+
+.dot-2 {
+    animation-delay: -0.2s;
+}
+
+.dot-3 {
+    animation-delay: 0s;
+}
+
+@keyframes jump {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px); /* Ketinggian lompatan */
+    }
 }
 
 .logo-loader {
