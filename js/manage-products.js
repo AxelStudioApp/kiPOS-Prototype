@@ -27,32 +27,16 @@ function renderProductManagement() {
         `;
         productList.appendChild(item);
     });
+
+    // Pindahkan event listener ke sini
+    const productForm = document.getElementById('product-form');
+    if (productForm && !productForm.dataset.listenerAttached) {
+        productForm.addEventListener('submit', handleProductFormSubmit);
+        productForm.dataset.listenerAttached = 'true';
+    }
 }
 
-function openAddProductModal() {
-    document.getElementById('product-form').reset();
-    document.getElementById('modal-title').textContent = translations[currentLang].addNewProduct;
-    document.getElementById('modal-submit-btn').textContent = translations[currentLang].save;
-    document.getElementById('product-id').value = '';
-    document.getElementById('add-edit-product-modal').classList.add('active');
-}
-
-function openEditProductModal(productId, category) {
-    const product = productsData[category].find(p => p.id === productId);
-    if (!product) return;
-    
-    document.getElementById('modal-title').textContent = translations[currentLang].editProductModal;
-    document.getElementById('modal-submit-btn').textContent = translations[currentLang].saveChanges;
-    document.getElementById('product-id').value = product.id;
-    document.getElementById('product-category').value = category;
-    document.getElementById('product-name').value = product.name;
-    document.getElementById('product-price').value = product.price;
-    document.getElementById('product-img-url').value = product.img;
-
-    document.getElementById('add-edit-product-modal').classList.add('active');
-}
-
-document.getElementById('product-form').addEventListener('submit', function(event) {
+function handleProductFormSubmit(event) {
     event.preventDefault();
     const id = document.getElementById('product-id').value;
     const category = document.getElementById('product-category').value;
@@ -84,7 +68,53 @@ document.getElementById('product-form').addEventListener('submit', function(even
     saveProducts();
     renderProductManagement();
     closeModal('add-edit-product-modal');
-});
+}
+
+function openAddProductModal() {
+    const form = document.getElementById('product-form');
+    if (form) form.reset();
+    
+    const title = document.getElementById('modal-title');
+    if (title) title.textContent = translations[currentLang].addNewProduct;
+    
+    const submitBtn = document.getElementById('modal-submit-btn');
+    if (submitBtn) submitBtn.textContent = translations[currentLang].save;
+    
+    const productIdInput = document.getElementById('product-id');
+    if (productIdInput) productIdInput.value = '';
+    
+    const modal = document.getElementById('add-edit-product-modal');
+    if (modal) modal.classList.add('active');
+}
+
+function openEditProductModal(productId, category) {
+    const product = productsData[category].find(p => p.id === productId);
+    if (!product) return;
+    
+    const title = document.getElementById('modal-title');
+    if (title) title.textContent = translations[currentLang].editProductModal;
+    
+    const submitBtn = document.getElementById('modal-submit-btn');
+    if (submitBtn) submitBtn.textContent = translations[currentLang].saveChanges;
+    
+    const productIdInput = document.getElementById('product-id');
+    if (productIdInput) productIdInput.value = product.id;
+    
+    const productCategorySelect = document.getElementById('product-category');
+    if (productCategorySelect) productCategorySelect.value = category;
+    
+    const productNameInput = document.getElementById('product-name');
+    if (productNameInput) productNameInput.value = product.name;
+    
+    const productPriceInput = document.getElementById('product-price');
+    if (productPriceInput) productPriceInput.value = product.price;
+    
+    const productImgUrlInput = document.getElementById('product-img-url');
+    if (productImgUrlInput) productImgUrlInput.value = product.img;
+
+    const modal = document.getElementById('add-edit-product-modal');
+    if (modal) modal.classList.add('active');
+}
 
 function deleteProduct(productId, category) {
     if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
