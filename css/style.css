@@ -226,45 +226,17 @@ h2 {
     background-color: var(--bg-color);
 }
 
-.loader-gear-wrapper {
-    position: relative;
-    width: 80px;
-    height: 80px;
-}
-.loader-gear {
-    animation: spin 3s linear infinite;
-}
-.loader-gear-inside {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: var(--bg-color);
-    font-size: 1.2em;
+.logo-loader {
+  animation: pulse 1.5s infinite ease-in-out;
 }
 
-.loader-kipos .logo-icon {
-    font-size: 5em;
-    color: var(--primary-color);
-    animation: pulse-loader 1.5s infinite;
-}
-.loader-kipos h1 {
-    font-size: 2em;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin: 10px 0;
-    animation: pulse-loader 1.5s infinite;
-    animation-delay: 0.2s;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-@keyframes pulse-loader {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .skeleton {
