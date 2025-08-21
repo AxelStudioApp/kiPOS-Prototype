@@ -31,22 +31,28 @@ function filterProducts(category) {
         return;
     }
 
-    selectedProducts.forEach(product => {
-        const productCard = document.createElement('div');
-        productCard.className = 'product-card';
-        productCard.innerHTML = `
-            <img src="${product.img}" alt="${product.name}">
-            <div class="info">
-                <h3>${product.name}</h3>
-                <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
-                <button class="add-btn" onclick="addToCart(${product.id}, '${product.name}', ${product.price}, '${product.img}')">
-                    <i class="material-icons-outlined" style="font-size: 1.2em; margin-right: 5px;">add_circle_outline</i>
-                    Tambah
-                </button>
-            </div>
-        `;
-        productListContainer.appendChild(productCard);
-    });
+    const fallbackImage = "data:image/svg+xml,%3Csvg xmlns=&quot;http://www.w3.org/2000/svg&quot; height=&quot;48&quot; width=&quot;48&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;%23cccccc&quot;%3E%3Cpath d=&quot;M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z&quot;/&gt;%3C/svg%3E";
+
+selectedProducts.forEach(product => {
+    const productCard = document.createElement('div');
+    productCard.className = 'product-card';
+    productCard.innerHTML = `
+        <img 
+            src="${product.img}" 
+            alt="${product.name}"
+            onerror="this.onerror=null; this.src='${fallbackImage}';"
+        >
+        <div class="info">
+            <h3>${product.name}</h3>
+            <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
+            <button class="add-btn" onclick="addToCart(${product.id}, '${product.name}', ${product.price}, '${product.img}')">
+                <i class="material-icons-outlined" style="font-size: 1.2em; margin-right: 5px;">add_circle_outline</i>
+                Tambah
+            </button>
+        </div>
+    `;
+    productListContainer.appendChild(productCard);
+});
 }
 
 function addToCart(id, name, price, img) {
