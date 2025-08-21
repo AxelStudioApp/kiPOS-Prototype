@@ -2,13 +2,14 @@ let selectedPaymentMethod = 'tunai';
 let discountPercentage = 0;
 
 function applyDiscount() {
-    const discountInput = document.getElementById('discount-input').value;
-    discountPercentage = parseFloat(discountInput) || 0;
+    const discountInput = document.getElementById('discount-input');
+    if (!discountInput) return;
+
+    discountPercentage = parseFloat(discountInput.value) || 0;
     if (discountPercentage > 100) discountPercentage = 100;
     if (discountPercentage < 0) discountPercentage = 0;
     
-    document.getElementById('discount-input').value = discountPercentage;
-    document.getElementById('discount-percentage-label').textContent = `${discountPercentage}%`;
+    discountInput.value = discountPercentage;
     updatePaymentPage();
     showNotification(`Diskon ${discountPercentage}% berhasil diterapkan!`);
 }
@@ -18,10 +19,17 @@ function updatePaymentPage() {
     const discountAmount = (subtotal * discountPercentage) / 100;
     const totalAmount = subtotal - discountAmount;
     
-    document.getElementById('payment-subtotal').textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
-    document.getElementById('payment-discount').textContent = `Rp ${discountAmount.toLocaleString('id-ID')}`;
-    document.getElementById('payment-total-amount').textContent = `Rp ${totalAmount.toLocaleString('id-ID')}`;
-    document.getElementById('discount-percentage-label').textContent = `${discountPercentage}%`;
+    const paymentSubtotalEl = document.getElementById('payment-subtotal');
+    if (paymentSubtotalEl) paymentSubtotalEl.textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
+
+    const paymentDiscountEl = document.getElementById('payment-discount');
+    if (paymentDiscountEl) paymentDiscountEl.textContent = `Rp ${discountAmount.toLocaleString('id-ID')}`;
+
+    const paymentTotalEl = document.getElementById('payment-total-amount');
+    if (paymentTotalEl) paymentTotalEl.textContent = `Rp ${totalAmount.toLocaleString('id-ID')}`;
+
+    const discountLabelEl = document.getElementById('discount-percentage-label');
+    if (discountLabelEl) discountLabelEl.textContent = `${discountPercentage}%`;
 
     if (selectedPaymentMethod === 'qris') {
         generateQrCode();
@@ -34,6 +42,8 @@ function selectPaymentMethod(element, method) {
     selectedPaymentMethod = method;
     
     const qrContainer = document.getElementById('qr-code-container');
+    if (!qrContainer) return;
+
     if (method === 'qris') {
         qrContainer.style.display = 'flex';
         generateQrCode();
@@ -44,6 +54,8 @@ function selectPaymentMethod(element, method) {
 
 function generateQrCode() {
     const qrContainer = document.getElementById('qr-code-container');
+    if (!qrContainer) return;
+
     qrContainer.innerHTML = '';
     
     const subtotal = Object.values(cart).reduce((sum, item) => sum + item.price * item.quantity, 0);
