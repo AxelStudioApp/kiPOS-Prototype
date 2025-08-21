@@ -80,7 +80,7 @@ const translations = {
         cart: 'Keranjang',
         payment: 'Pembayaran',
         addProduct: 'Tambah Produk',
-        editProduct: 'Edit Produk',
+        editProduct: 'Ubah Produk',
         delete: 'Hapus',
         all: 'Semua',
         food: 'Makanan',
@@ -131,16 +131,12 @@ let productsData = JSON.parse(localStorage.getItem('kipos_products')) || product
 const isVerifiedDevice = localStorage.getItem('is_verified_device') === 'true';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('DOMContentLoaded triggered');
-    console.log('Current language:', currentLang);
-    console.log('Current page:', currentPage);
-    console.log('Is verified device:', isVerifiedDevice);
-
     document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
-    if(document.getElementById('dark-mode-toggle')) {
-        document.getElementById('dark-mode-toggle').checked = localStorage.getItem('theme') === 'dark';
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    if(darkModeToggle) {
+        darkModeToggle.checked = localStorage.getItem('theme') === 'dark';
     }
-
+    
     setLanguage(currentLang);
     await loadPage('kipos-loader');
     setTimeout(async () => {
@@ -159,14 +155,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-async function loadPage(pageName) {
+async function loadPage(pageName, data = null) {
     const pageId = pageName;
     const container = document.getElementById('app-content');
     const pagePath = `pages/${pageId}.html`;
 
-    console.log(`Attempting to load page: ${pagePath}`);
-
-    // Cek apakah halaman sudah ada di DOM
     if (!document.getElementById(pageId)) {
         try {
             const response = await fetch(pagePath);
@@ -174,11 +167,9 @@ async function loadPage(pageName) {
             
             const html = await response.text();
             
-            // Buat kontainer sementara untuk mengurai HTML dari string
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
             
-            // Cari elemen utama dengan class 'page'
             const pageElement = tempDiv.querySelector('.page');
             
             if (!pageElement) {
@@ -186,48 +177,54 @@ async function loadPage(pageName) {
                 return;
             }
             
-            // Beri ID pada elemen utama
             pageElement.id = pageId;
-            
-            // Pindahkan elemen ke container utama
             container.appendChild(pageElement);
             
-            console.log(`Page ${pageId} loaded successfully and appended.`);
-
         } catch (error) {
             console.error('Gagal memuat halaman:', error);
             showNotification('Gagal memuat halaman. Mohon coba lagi.', 'error');
             return;
         }
-    } else {
-        console.log(`Page ${pageId} already exists. Skipping fetch.`);
     }
 
-    // Panggil showPage setelah yakin elemen sudah ada di DOM
     showPage(pageId);
-    initializePageScripts(pageId);
+    initializePageScripts(pageId, data);
 }
 
-function initializePageScripts(pageId) {
-    console.log(`Initializing scripts for page: ${pageId}`);
-    if (pageId === 'dashboard-page') {
-        renderDashboard();
-    } else if (pageId === 'home-page') {
-        renderHomePage();
-    } else if (pageId === 'product-list-page') {
-        filterProducts('all');
-    } else if (pageId === 'cart-page') {
-        renderCart();
-    } else if (pageId === 'manage-products-page') {
-        renderProductManagement();
-    } else if (pageId === 'payment-page') {
-        updatePaymentPage();
-    } else if (pageId === 'sale-history-page') {
-        renderSaleHistory();
-    } else if (pageId === 'report-page') {
-        renderReports();
-    } else {
-        console.warn(`No specific scripts found for page: ${pageId}`);
+function initializePageScripts(pageId, data = null) {
+    switch (pageId) {
+        case 'dashboard-page':
+            renderDashboard();
+            break;
+        case 'home-page':
+            renderHomePage();
+            break;
+        case 'product-list-page':
+            filterProducts('all');
+            break;
+        case 'cart-page':
+            renderCart();
+            break;
+        case 'manage-products-page':
+            renderProductManagement();
+            break;
+        case 'payment-page':
+            updatePaymentPage();
+            break;
+        case 'sale-history-page':
+            renderSaleHistory();
+            break;
+        case 'report-page':
+            renderReports();
+            break;
+        case 'otp-verification-page':
+            if (data && data.emailToDisplay) {
+                const emailTarget = document.getElementById('verification-email-target');
+                if (emailTarget) {
+                    emailTarget.textContent = data.emailToDisplay;
+                }
+            }
+            break;
     }
 }
 
@@ -252,60 +249,45 @@ function saveSaleHistory() {
 }
 
 function showPage(pageId) {
-    console.log(`Switching to page: ${pageId}`);
     const container = document.getElementById('app-content');
-    if (!container) {
-        console.error('Container "app-content" not found.');
-        return;
-    }
+    if (!container) return;
 
-    const pageElement = document.getElementById(pageId);
-    if (!pageElement) {
-        console.error(`Page element with ID "${pageId}" not found in DOM.`);
-        return;
-    }
-    
-    // Sembunyikan semua elemen anak yang ada di dalam kontainer
     Array.from(container.children).forEach(page => {
         if (page.id !== pageId) {
             page.style.display = 'none';
-            page.classList.remove('active');
         }
     });
+
+    const pageElement = document.getElementById(pageId);
+    if (!pageElement) {
+        return;
+    }
     
-    // Tampilkan halaman yang diminta
     pageElement.style.display = 'block';
-    pageElement.classList.add('active');
 
     const flow = pageElement.getAttribute('data-flow');
-    console.log(`Page flow for ${pageId}: ${flow}`);
-
+    
     if (flow === 'app') {
         showAppUI(true);
     } else {
         showAppUI(false);
     }
-    
-    // Perbarui riwayat halaman
+
     if (pageId !== currentPage) {
         const prevPageFlow = document.getElementById(currentPage)?.getAttribute('data-flow');
         if (prevPageFlow === flow) {
             pageHistory.push(currentPage);
         } else {
-            pageHistory.length = 0; // Reset history jika berpindah flow (auth ke app)
+            pageHistory.length = 0;
         }
-        console.log(`Page history updated:`, pageHistory);
     }
     
-    // Perbarui navigasi bawah
     document.querySelectorAll('.footer-nav button').forEach(btn => btn.classList.remove('active'));
     const footerBtn = document.getElementById(pageId.replace('-page', '-btn'));
     if (footerBtn) {
         footerBtn.classList.add('active');
-        console.log(`Footer button activated for ${pageId}`);
     }
 
-    // Perbarui header
     const header = document.querySelector('.header');
     if (header) {
         if (flow === 'app' && pageId !== 'home-page' && pageId !== 'product-list-page' && pageId !== 'cart-page') {
@@ -316,7 +298,6 @@ function showPage(pageId) {
     }
     
     currentPage = pageId;
-    console.log(`Current page updated to: ${currentPage}`);
 }
 
 function goBack() {
@@ -342,15 +323,10 @@ function closeModal(modalId) {
 
 function updateCartCount() {
     const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
-    console.log(`Total items in cart: ${totalItems}`);
-
     const cartCountElement = document.getElementById('cart-count');
     if (cartCountElement) {
         cartCountElement.textContent = totalItems;
         cartCountElement.style.display = totalItems > 0 ? 'flex' : 'none';
-        console.log(`Cart count element updated`);
-    } else {
-        console.error('Cart count element not found');
     }
 }
 
@@ -362,29 +338,51 @@ function updateQuantity(id, change) {
         }
     }
     saveCart();
-    renderCart(); // Tambahkan ini agar tampilan keranjang diperbarui
+    renderCart();
 }
 
 function setLanguage(lang) {
-    console.log(`Setting language to: ${lang}`);
     currentLang = lang;
     localStorage.setItem('language', lang);
-
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.getAttribute('data-translate');
         if (translations[lang][key]) {
             element.textContent = translations[lang][key];
-            console.log(`Translated ${key} to ${translations[lang][key]}`);
-        } else {
-            console.warn(`Translation key ${key} not found for language ${lang}`);
         }
     });
-
-    // Panggil ulang render fungsi untuk memperbarui teks
     if (currentPage === 'dashboard-page') renderDashboard();
     if (currentPage === 'manage-products-page') renderProductManagement();
     if (currentPage === 'sale-history-page') renderSaleHistory();
     if (currentPage === 'report-page') renderReports();
-
     showNotification(`Bahasa diubah menjadi ${lang.toUpperCase()}`);
+}
+
+// Global functions for other files
+function showNotification(message, type = 'success') {
+    const container = document.getElementById('notification-container');
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `<i class="material-icons">${type === 'success' ? 'check_circle_outline' : 'error_outline'}</i><span>${message}</span>`;
+    
+    if (container) {
+        container.appendChild(notification);
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            notification.addEventListener('transitionend', () => notification.remove());
+        }, 3000);
+    }
+}
+
+function syncData() {
+    if (navigator.onLine) {
+        const offlineNotif = document.getElementById('offline-notification');
+        if (offlineNotif) offlineNotif.style.display = 'none';
+        showNotification('Aplikasi kembali online. Data berhasil disinkronkan.');
+    } else {
+        showNotification(translations[currentLang].offlineMessage, 'error');
+    }
 }
