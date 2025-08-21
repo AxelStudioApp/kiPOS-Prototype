@@ -234,7 +234,7 @@ h2 {
 .dot {
     width: 15px;
     height: 15px;
-    background-color: #3498db;
+    background-color: var(--primary-color);
     border-radius: 50%;
     animation: jump 1.2s infinite ease-in-out;
 }
@@ -715,6 +715,12 @@ h2 {
     object-fit: cover;
     border-bottom: 1px solid var(--border-color);
 }
+
+.product-card img[src^="data:image/svg+xml"] {
+    object-fit: scale-down;
+    padding: 20px;
+}
+
 .product-card .info {
     padding: 10px;
 }

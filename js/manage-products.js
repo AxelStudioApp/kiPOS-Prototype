@@ -11,11 +11,13 @@ function renderProductManagement() {
         return;
     }
 
+    const fallbackImage = "data:image/svg+xml,%3Csvg xmlns=&quot;http://www.w3.org/2000/svg&quot; height=&quot;48&quot; width=&quot;48&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;%23cccccc&quot;%3E%3Cpath d=&quot;M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z&quot;/&gt;%3C/svg%3E";
+
     allProducts.forEach(product => {
         const item = document.createElement('div');
         item.className = 'product-item';
         item.innerHTML = `
-            <img src="${product.img}" alt="${product.name}">
+            <img src="${product.img}" alt="${product.name}" onerror="this.onerror=null; this.src='${fallbackImage}';">
             <div class="details">
                 <div class="name">${product.name}</div>
                 <div class="price">Rp ${product.price.toLocaleString('id-ID')}</div>
