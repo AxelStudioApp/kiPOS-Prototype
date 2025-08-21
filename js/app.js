@@ -229,11 +229,29 @@ function saveSaleHistory() {
 
 function showPage(pageId) {
     console.log(`Switching to page: ${pageId}`);
-    const pageElement = document.getElementById(pageId);
-    if (!pageElement) {
-        console.error(`Page element with ID ${pageId} not found`);
+    const container = document.getElementById('app-content');
+    if (!container) {
+        console.error('Container "app-content" not found.');
         return;
     }
+
+    const pageElement = document.getElementById(pageId);
+    if (!pageElement) {
+        console.error(`Page element with ID "${pageId}" not found in DOM.`);
+        return;
+    }
+    
+    // Sembunyikan semua elemen anak yang ada di dalam kontainer
+    Array.from(container.children).forEach(page => {
+        if (page.id !== pageId) {
+            page.style.display = 'none';
+            page.classList.remove('active');
+        }
+    });
+    
+    // Tampilkan halaman yang diminta
+    pageElement.style.display = 'block';
+    pageElement.classList.add('active');
 
     const flow = pageElement.getAttribute('data-flow');
     console.log(`Page flow for ${pageId}: ${flow}`);
@@ -243,19 +261,19 @@ function showPage(pageId) {
     } else {
         showAppUI(false);
     }
-
-    if (pageId !== currentPage && flow === document.getElementById(currentPage)?.getAttribute('data-flow') && pageId !== 'general-loader' && pageId !== 'kipos-loader') {
-        pageHistory.push(currentPage);
+    
+    // Perbarui riwayat halaman
+    if (pageId !== currentPage) {
+        const prevPageFlow = document.getElementById(currentPage)?.getAttribute('data-flow');
+        if (prevPageFlow === flow) {
+            pageHistory.push(currentPage);
+        } else {
+            pageHistory.length = 0; // Reset history jika berpindah flow (auth ke app)
+        }
         console.log(`Page history updated:`, pageHistory);
-    } else if (flow !== document.getElementById(currentPage)?.getAttribute('data-flow')) {
-        pageHistory.length = 0;
-        console.log(`Page history reset`);
     }
-
-    const container = document.getElementById('app-content');
-    Array.from(container.children).forEach(child => child.style.display = 'none');
-    pageElement.style.display = 'block';
-
+    
+    // Perbarui navigasi bawah
     document.querySelectorAll('.footer-nav button').forEach(btn => btn.classList.remove('active'));
     const footerBtn = document.getElementById(pageId.replace('-page', '-btn'));
     if (footerBtn) {
@@ -263,15 +281,16 @@ function showPage(pageId) {
         console.log(`Footer button activated for ${pageId}`);
     }
 
+    // Perbarui header
     const header = document.querySelector('.header');
     if (header) {
-        if (flow === 'app' && pageId !== 'home-page') {
+        if (flow === 'app' && pageId !== 'home-page' && pageId !== 'product-list-page' && pageId !== 'cart-page') {
             header.classList.add('app-mode');
         } else {
             header.classList.remove('app-mode');
         }
     }
-
+    
     currentPage = pageId;
     console.log(`Current page updated to: ${currentPage}`);
 }
