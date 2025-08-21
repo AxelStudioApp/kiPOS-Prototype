@@ -1,0 +1,75 @@
+<div class="page" data-flow="app">
+    <h2>Pilih Kategori</h2>
+    <div class="category-list">
+        <div class="card category-card" onclick="filterProducts('Makanan')">
+            <i class="material-icons-outlined">restaurant</i>
+            <h3>Makanan</h3>
+        </div>
+        <div class="card category-card" onclick="filterProducts('Minuman')">
+            <i class="material-icons-outlined">local_cafe</i>
+            <h3>Minuman</h3>
+        </div>
+        <div class="card category-card" onclick="filterProducts('Snack')">
+            <i class="material-icons-outlined">fastfood</i>
+            <h3>Snack</h3>
+        </div>
+    </div>
+    
+    <div id="product-list-page" class="page" data-flow="app" style="display:none;">
+        <h2 id="product-category-title">Produk</h2>
+        <div class="category-filter" id="product-filter-tabs">
+            <button class="active" onclick="filterProducts('all')">Semua</button>
+            <button onclick="filterProducts('Makanan')">Makanan</button>
+            <button onclick="filterProducts('Minuman')">Minuman</button>
+            <button onclick="filterProducts('Snack')">Snack</button>
+        </div>
+        <div class="product-list" id="product-items-container"></div>
+    </div>
+    
+    <div id="cart-page" class="page" data-flow="app" style="display:none;">
+        <h2>Keranjang Belanja</h2>
+        <div id="cart-list"></div>
+        <div id="cart-summary" style="display:none;">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-price">Rp 0</span>
+            </div>
+            <button class="btn" onclick="showPage('payment-page')">Bayar Sekarang</button>
+        </div>
+        <p id="empty-cart-message">Keranjang belanja Anda kosong.</p>
+    </div>
+    
+    <div id="general-loader" class="page loader-page" style="display:none;">
+        <div class="loader-gear-wrapper">
+            <i class="material-icons loader-gear" style="font-size: 80px; color: var(--text-light);">settings</i>
+            <i class="material-icons loader-gear-inside">build</i>
+        </div>
+    </div>
+    
+    <div id="kipos-loader" class="page loader-page active" style="display: none;">
+        <i class="material-icons logo-icon">storefront</i>
+        <h1>kiPOS</h1>
+    </div>
+    
+    <div id="skeleton-loader-page" class="page" style="display:none;">
+        <div class="card skeleton-card">
+            <div class="skeleton skeleton-block title"></div>
+            <div class="skeleton skeleton-block text"></div>
+        </div>
+        <div class="card skeleton-card">
+            <div class="skeleton skeleton-block title"></div>
+            <div class="skeleton skeleton-block text"></div>
+        </div>
+        <div class="card skeleton-card">
+            <div class="skeleton skeleton-block title"></div>
+            <div class="skeleton skeleton-block text"></div>
+        </div>
+    </div>
+    
+    <div id="onboarding-page" class="page" data-flow="app" style="display:none;">
+        <i class="material-icons onboarding-icon">local_mall</i>
+        <h2>Selamat Datang di kiPOS</h2>
+        <p>Aplikasi point of sales mobile yang dirancang untuk kemudahan bisnis Anda.</p>
+        <button class="onboarding-btn" onclick="showPageWithLoader('dashboard-page')">Mulai Sekarang</button>
+    </div>
+</div>
