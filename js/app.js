@@ -80,7 +80,7 @@ const translations = {
         cart: 'Keranjang',
         payment: 'Pembayaran',
         addProduct: 'Tambah Produk',
-        editProduct: 'Edit Produk',
+        editProduct: 'Ubah Produk',
         delete: 'Hapus',
         all: 'Semua',
         food: 'Makanan',
@@ -132,8 +132,9 @@ const isVerifiedDevice = localStorage.getItem('is_verified_device') === 'true';
 
 document.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
-    if(document.getElementById('dark-mode-toggle')) {
-      document.getElementById('dark-mode-toggle').checked = localStorage.getItem('theme') === 'dark';
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    if(darkModeToggle) {
+        darkModeToggle.checked = localStorage.getItem('theme') === 'dark';
     }
     
     setLanguage(currentLang);
@@ -154,44 +155,76 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-async function loadPage(pageName) {
+async function loadPage(pageName, data = null) {
     const pageId = pageName;
     const container = document.getElementById('app-content');
     const pagePath = `pages/${pageId}.html`;
 
-    try {
-        const response = await fetch(pagePath);
-        if (!response.ok) throw new Error('Halaman tidak ditemukan');
-        const html = await response.text();
-        container.innerHTML = html;
-        showPage(pageId);
-        
-        // Inisialisasi skrip spesifik setelah halaman dimuat
-        initializePageScripts(pageId);
-
-    } catch (error) {
-        console.error('Gagal memuat halaman:', error);
-        showNotification('Gagal memuat halaman. Mohon coba lagi.', 'error');
+    if (!document.getElementById(pageId)) {
+        try {
+            const response = await fetch(pagePath);
+            if (!response.ok) throw new Error(`Halaman tidak ditemukan: ${response.status}`);
+            
+            const html = await response.text();
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            const pageElement = tempDiv.querySelector('.page');
+            
+            if (!pageElement) {
+                console.error(`Elemen dengan class 'page' tidak ditemukan di ${pagePath}`);
+                return;
+            }
+            
+            pageElement.id = pageId;
+            container.appendChild(pageElement);
+            
+        } catch (error) {
+            console.error('Gagal memuat halaman:', error);
+            showNotification('Gagal memuat halaman. Mohon coba lagi.', 'error');
+            return;
+        }
     }
+
+    showPage(pageId);
+    initializePageScripts(pageId, data);
 }
 
-function initializePageScripts(pageId) {
-    if (pageId === 'dashboard-page') {
-        renderDashboard();
-    } else if (pageId === 'home-page') {
-        renderHomePage();
-    } else if (pageId === 'product-list-page') {
-        filterProducts('all'); // Inisialisasi daftar produk
-    } else if (pageId === 'cart-page') {
-        renderCart();
-    } else if (pageId === 'manage-products-page') {
-        renderProductManagement();
-    } else if (pageId === 'payment-page') {
-        updatePaymentPage();
-    } else if (pageId === 'sale-history-page') {
-        renderSaleHistory();
-    } else if (pageId === 'report-page') {
-        renderReports();
+function initializePageScripts(pageId, data = null) {
+    switch (pageId) {
+        case 'dashboard-page':
+            renderDashboard();
+            break;
+        case 'home-page':
+            renderHomePage();
+            break;
+        case 'product-list-page':
+            filterProducts('all');
+            break;
+        case 'cart-page':
+            renderCart();
+            break;
+        case 'manage-products-page':
+            renderProductManagement();
+            break;
+        case 'payment-page':
+            updatePaymentPage();
+            break;
+        case 'sale-history-page':
+            renderSaleHistory();
+            break;
+        case 'report-page':
+            renderReports();
+            break;
+        case 'otp-verification-page':
+            if (data && data.emailToDisplay) {
+                const emailTarget = document.getElementById('verification-email-target');
+                if (emailTarget) {
+                    emailTarget.textContent = data.emailToDisplay;
+                }
+            }
+            break;
     }
 }
 
@@ -216,8 +249,21 @@ function saveSaleHistory() {
 }
 
 function showPage(pageId) {
+    const container = document.getElementById('app-content');
+    if (!container) return;
+
+    Array.from(container.children).forEach(page => {
+        if (page.id !== pageId) {
+            page.style.display = 'none';
+        }
+    });
+
     const pageElement = document.getElementById(pageId);
-    if (!pageElement) return;
+    if (!pageElement) {
+        return;
+    }
+    
+    pageElement.style.display = 'block';
 
     const flow = pageElement.getAttribute('data-flow');
     
@@ -227,29 +273,28 @@ function showPage(pageId) {
         showAppUI(false);
     }
 
-    if (pageId !== currentPage && flow === document.getElementById(currentPage)?.getAttribute('data-flow') && pageId !== 'general-loader' && pageId !== 'kipos-loader') {
-         pageHistory.push(currentPage);
-    } else if (flow !== document.getElementById(currentPage)?.getAttribute('data-flow')) {
-         pageHistory.length = 0;
+    if (pageId !== currentPage) {
+        const prevPageFlow = document.getElementById(currentPage)?.getAttribute('data-flow');
+        if (prevPageFlow === flow) {
+            pageHistory.push(currentPage);
+        } else {
+            pageHistory.length = 0;
+        }
     }
-
-    const container = document.getElementById('app-content');
-    Array.from(container.children).forEach(child => child.style.display = 'none');
-    pageElement.style.display = 'block';
-
+    
     document.querySelectorAll('.footer-nav button').forEach(btn => btn.classList.remove('active'));
     const footerBtn = document.getElementById(pageId.replace('-page', '-btn'));
-    if(footerBtn) {
+    if (footerBtn) {
         footerBtn.classList.add('active');
     }
 
     const header = document.querySelector('.header');
     if (header) {
-      if (flow === 'app' && pageId !== 'home-page') {
-          header.classList.add('app-mode');
-      } else {
-          header.classList.remove('app-mode');
-      }
+        if (flow === 'app' && pageId !== 'home-page' && pageId !== 'product-list-page' && pageId !== 'cart-page') {
+            header.classList.add('app-mode');
+        } else {
+            header.classList.remove('app-mode');
+        }
     }
     
     currentPage = pageId;
@@ -293,7 +338,7 @@ function updateQuantity(id, change) {
         }
     }
     saveCart();
-    renderCart(); // Tambahkan ini agar tampilan keranjang diperbarui
+    renderCart();
 }
 
 function setLanguage(lang) {
@@ -305,10 +350,39 @@ function setLanguage(lang) {
             element.textContent = translations[lang][key];
         }
     });
-    // Panggil ulang render fungsi untuk memperbarui teks
     if (currentPage === 'dashboard-page') renderDashboard();
     if (currentPage === 'manage-products-page') renderProductManagement();
     if (currentPage === 'sale-history-page') renderSaleHistory();
     if (currentPage === 'report-page') renderReports();
     showNotification(`Bahasa diubah menjadi ${lang.toUpperCase()}`);
+}
+
+// Global functions for other files
+function showNotification(message, type = 'success') {
+    const container = document.getElementById('notification-container');
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `<i class="material-icons">${type === 'success' ? 'check_circle_outline' : 'error_outline'}</i><span>${message}</span>`;
+    
+    if (container) {
+        container.appendChild(notification);
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            notification.addEventListener('transitionend', () => notification.remove());
+        }, 3000);
+    }
+}
+
+function syncData() {
+    if (navigator.onLine) {
+        const offlineNotif = document.getElementById('offline-notification');
+        if (offlineNotif) offlineNotif.style.display = 'none';
+        showNotification('Aplikasi kembali online. Data berhasil disinkronkan.');
+    } else {
+        showNotification(translations[currentLang].offlineMessage, 'error');
+    }
 }

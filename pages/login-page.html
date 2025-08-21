@@ -1,0 +1,26 @@
+<div class="page auth-container" data-flow="auth">
+    <div class="auth-header">
+        <h2>Masuk ke Akun Anda</h2>
+        <p>Selamat datang kembali!</p>
+    </div>
+    <form class="auth-form" onsubmit="handleLogin(event)">
+        <div class="input-group">
+            <i class="material-icons-outlined">email</i>
+            <input type="email" id="login-email" placeholder="Email" required>
+        </div>
+        <div class="input-group">
+            <i class="material-icons-outlined">lock</i>
+            <input type="password" id="login-password" placeholder="Password" required>
+        </div>
+        <a href="#" onclick="loadPage('forgot-password-page')">Lupa password?</a>
+        <button type="submit" class="btn" data-translate="login">Masuk</button>
+    </form>
+    <div class="auth-footer">
+        Belum punya akun? <a href="#" onclick="loadPage('register-page')">Daftar sekarang</a>
+    </div>
+</div>
+
+<div id="offline-notification" class="notification error" style="display: none;">
+    <i class="material-icons">cloud_off</i>
+    <span>Anda sedang offline. Data akan disinkronkan saat online.</span>
+</div>
