@@ -1,7 +1,7 @@
 function renderSaleHistory() {
     const historyList = document.getElementById('sale-history-list');
     if (!historyList) return;
-    
+
     historyList.innerHTML = '';
     
     if (saleHistory.length === 0) {

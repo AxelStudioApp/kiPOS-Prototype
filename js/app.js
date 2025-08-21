@@ -132,48 +132,74 @@ const isVerifiedDevice = localStorage.getItem('is_verified_device') === 'true';
 
 document.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
-    document.getElementById('dark-mode-toggle').checked = localStorage.getItem('theme') === 'dark';
+    if(document.getElementById('dark-mode-toggle')) {
+      document.getElementById('dark-mode-toggle').checked = localStorage.getItem('theme') === 'dark';
+    }
     
     setLanguage(currentLang);
-    await loadPage('kipos-loader', true);
+    await loadPage('kipos-loader');
     setTimeout(async () => {
         await loadPage(isVerifiedDevice ? 'dashboard-page' : 'landing-page');
     }, 2000); 
 
     window.addEventListener('online', syncData);
     window.addEventListener('offline', () => {
-        document.getElementById('offline-notification').style.display = 'flex';
+        const offlineNotif = document.getElementById('offline-notification');
+        if (offlineNotif) offlineNotif.style.display = 'flex';
         showNotification(translations[currentLang].offlineMessage, 'error');
     });
     if (!navigator.onLine) {
-        document.getElementById('offline-notification').style.display = 'flex';
+        const offlineNotif = document.getElementById('offline-notification');
+        if (offlineNotif) offlineNotif.style.display = 'flex';
     }
 });
 
-async function loadPage(pageName, isLoader = false) {
+async function loadPage(pageName) {
     const pageId = pageName;
     const container = document.getElementById('app-content');
     const pagePath = `pages/${pageId}.html`;
 
     try {
-        if (!document.getElementById(pageId)) {
-            const response = await fetch(pagePath);
-            if (!response.ok) throw new Error('Page not found');
-            const html = await response.text();
-            container.insertAdjacentHTML('beforeend', `<div id="${pageId}" class="page" data-flow="${isLoader ? 'auth' : 'app'}">${html}</div>`);
-        }
+        const response = await fetch(pagePath);
+        if (!response.ok) throw new Error('Halaman tidak ditemukan');
+        const html = await response.text();
+        container.innerHTML = html;
         showPage(pageId);
+        
+        // Inisialisasi skrip spesifik setelah halaman dimuat
+        initializePageScripts(pageId);
+
     } catch (error) {
-        console.error('Error loading page:', error);
-        showNotification('Gagal memuat halaman.', 'error');
+        console.error('Gagal memuat halaman:', error);
+        showNotification('Gagal memuat halaman. Mohon coba lagi.', 'error');
+    }
+}
+
+function initializePageScripts(pageId) {
+    if (pageId === 'dashboard-page') {
+        renderDashboard();
+    } else if (pageId === 'home-page') {
+        renderHomePage();
+    } else if (pageId === 'product-list-page') {
+        filterProducts('all'); // Inisialisasi daftar produk
+    } else if (pageId === 'cart-page') {
+        renderCart();
+    } else if (pageId === 'manage-products-page') {
+        renderProductManagement();
+    } else if (pageId === 'payment-page') {
+        updatePaymentPage();
+    } else if (pageId === 'sale-history-page') {
+        renderSaleHistory();
+    } else if (pageId === 'report-page') {
+        renderReports();
     }
 }
 
 function showAppUI(show) {
     const header = document.getElementById('app-header');
     const footer = document.getElementById('app-footer-nav');
-    header.style.display = show ? 'flex' : 'none';
-    footer.style.display = show ? 'flex' : 'none';
+    if (header) header.style.display = show ? 'flex' : 'none';
+    if (footer) footer.style.display = show ? 'flex' : 'none';
 }
 
 function saveProducts() {
@@ -183,19 +209,17 @@ function saveProducts() {
 function saveCart() {
     localStorage.setItem('kipos_cart', JSON.stringify(cart));
     updateCartCount();
-    renderCart();
-    updatePaymentPage();
 }
 
 function saveSaleHistory() {
     localStorage.setItem('kipos_sale_history', JSON.stringify(saleHistory));
-    renderDashboard();
-    renderSaleHistory();
-    renderReports();
 }
 
 function showPage(pageId) {
-    const flow = document.getElementById(pageId)?.getAttribute('data-flow');
+    const pageElement = document.getElementById(pageId);
+    if (!pageElement) return;
+
+    const flow = pageElement.getAttribute('data-flow');
     
     if (flow === 'app') {
         showAppUI(true);
@@ -209,11 +233,9 @@ function showPage(pageId) {
          pageHistory.length = 0;
     }
 
-    document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
-    const targetPage = document.getElementById(pageId);
-    if(targetPage) {
-        targetPage.style.display = 'block';
-    }
+    const container = document.getElementById('app-content');
+    Array.from(container.children).forEach(child => child.style.display = 'none');
+    pageElement.style.display = 'block';
 
     document.querySelectorAll('.footer-nav button').forEach(btn => btn.classList.remove('active'));
     const footerBtn = document.getElementById(pageId.replace('-page', '-btn'));
@@ -222,10 +244,12 @@ function showPage(pageId) {
     }
 
     const header = document.querySelector('.header');
-    if (flow === 'app') {
-        header.classList.add('app-mode');
-    } else {
-        header.classList.remove('app-mode');
+    if (header) {
+      if (flow === 'app' && pageId !== 'home-page') {
+          header.classList.add('app-mode');
+      } else {
+          header.classList.remove('app-mode');
+      }
     }
     
     currentPage = pageId;
@@ -234,33 +258,31 @@ function showPage(pageId) {
 function goBack() {
     if (pageHistory.length > 0) {
         const prevPage = pageHistory.pop();
-        showPage(prevPage);
+        loadPage(prevPage);
     } else {
-        showPage('dashboard-page');
+        loadPage('dashboard-page');
     }
 }
 
 function showPageWithLoader(pageId) {
-    loadPage('general-loader', true);
+    loadPage('general-loader');
     setTimeout(() => {
         loadPage(pageId);
-        if (pageId === 'dashboard-page') renderDashboard();
-        if (pageId === 'home-page') renderHomePage();
-        if (pageId === 'manage-products-page') renderProductManagement();
-        if (pageId === 'sale-history-page') renderSaleHistory();
-        if (pageId === 'report-page') renderReports();
     }, 1000);
 }
 
 function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove('active');
 }
 
 function updateCartCount() {
     const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
     const cartCountElement = document.getElementById('cart-count');
-    cartCountElement.textContent = totalItems;
-    cartCountElement.style.display = totalItems > 0 ? 'flex' : 'none';
+    if (cartCountElement) {
+        cartCountElement.textContent = totalItems;
+        cartCountElement.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
 }
 
 function updateQuantity(id, change) {
@@ -271,6 +293,7 @@ function updateQuantity(id, change) {
         }
     }
     saveCart();
+    renderCart(); // Tambahkan ini agar tampilan keranjang diperbarui
 }
 
 function setLanguage(lang) {
@@ -278,12 +301,14 @@ function setLanguage(lang) {
     localStorage.setItem('language', lang);
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.getAttribute('data-translate');
-        element.textContent = translations[lang][key];
+        if (translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
     });
-    renderDashboard();
-    renderCart();
-    renderProductManagement();
-    renderSaleHistory();
-    renderReports();
+    // Panggil ulang render fungsi untuk memperbarui teks
+    if (currentPage === 'dashboard-page') renderDashboard();
+    if (currentPage === 'manage-products-page') renderProductManagement();
+    if (currentPage === 'sale-history-page') renderSaleHistory();
+    if (currentPage === 'report-page') renderReports();
     showNotification(`Bahasa diubah menjadi ${lang.toUpperCase()}`);
 }

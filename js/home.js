@@ -1,26 +1,21 @@
 function renderHomePage() {
-    // This function will be called by showPageWithLoader to load categories and products
-    // It's similar to filterProducts but for the initial load
     filterProducts('all');
 }
 
 function filterProducts(category) {
     const productListContainer = document.getElementById('product-items-container');
     const categoryTabs = document.getElementById('product-filter-tabs');
-    
-    if (categoryTabs) {
-        categoryTabs.querySelectorAll('button').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        const selectedBtn = categoryTabs.querySelector(`button[onclick="filterProducts('${category}')"]`);
-        if (selectedBtn) selectedBtn.classList.add('active');
-    }
 
-    if (!productListContainer) {
-        // Handle case where product-list-page is not loaded yet
-        showPageWithLoader('product-list-page');
+    if (!productListContainer || !categoryTabs) {
+        // Elemen belum dimuat, ini akan diatasi oleh loadPage
         return;
     }
+    
+    categoryTabs.querySelectorAll('button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    const selectedBtn = categoryTabs.querySelector(`button[onclick="filterProducts('${category}')"]`);
+    if (selectedBtn) selectedBtn.classList.add('active');
 
     productListContainer.innerHTML = '';
     
@@ -52,11 +47,6 @@ function filterProducts(category) {
         `;
         productListContainer.appendChild(productCard);
     });
-    
-    // Check if the current page is not product-list-page, then navigate
-    if (currentPage !== 'product-list-page') {
-        showPage('product-list-page');
-    }
 }
 
 function addToCart(id, name, price, img) {
@@ -73,17 +63,22 @@ function renderCart() {
     const cartList = document.getElementById('cart-list');
     const cartSummary = document.getElementById('cart-summary');
     const emptyCartMessage = document.getElementById('empty-cart-message');
-    cartList.innerHTML = '';
 
+    if (!cartList || !cartSummary || !emptyCartMessage) {
+      return;
+    }
+
+    cartList.innerHTML = '';
     const cartItems = Object.values(cart);
+    
     if (cartItems.length === 0) {
-        if(emptyCartMessage) emptyCartMessage.style.display = 'block';
-        if(cartSummary) cartSummary.style.display = 'none';
+        emptyCartMessage.style.display = 'block';
+        cartSummary.style.display = 'none';
         return;
     }
 
-    if(emptyCartMessage) emptyCartMessage.style.display = 'none';
-    if(cartSummary) cartSummary.style.display = 'block';
+    emptyCartMessage.style.display = 'none';
+    cartSummary.style.display = 'block';
 
     let subtotal = 0;
     cartItems.forEach(item => {
