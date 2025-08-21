@@ -1,7 +1,12 @@
 function updateProfile(event) {
     event.preventDefault();
-    const name = document.getElementById('profile-name').value;
-    const email = document.getElementById('profile-email').value;
+    const nameInput = document.getElementById('profile-name');
+    const emailInput = document.getElementById('profile-email');
+
+    if (!nameInput || !emailInput) return;
+
+    const name = nameInput.value;
+    const email = emailInput.value;
 
     localStorage.setItem('user_name', name);
     localStorage.setItem('user_email', email);
