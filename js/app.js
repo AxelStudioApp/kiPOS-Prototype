@@ -166,22 +166,46 @@ async function loadPage(pageName) {
 
     console.log(`Attempting to load page: ${pagePath}`);
 
-    try {
-        const response = await fetch(pagePath);
-        console.log(`Response status for ${pagePath}:`, response.status);
-        if (!response.ok) throw new Error('Halaman tidak ditemukan');
+    // Cek apakah halaman sudah ada di DOM
+    if (!document.getElementById(pageId)) {
+        try {
+            const response = await fetch(pagePath);
+            if (!response.ok) throw new Error(`Halaman tidak ditemukan: ${response.status}`);
+            
+            const html = await response.text();
+            
+            // Buat kontainer sementara untuk mengurai HTML dari string
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Cari elemen utama dengan class 'page'
+            const pageElement = tempDiv.querySelector('.page');
+            
+            if (!pageElement) {
+                console.error(`Elemen dengan class 'page' tidak ditemukan di ${pagePath}`);
+                return;
+            }
+            
+            // Beri ID pada elemen utama
+            pageElement.id = pageId;
+            
+            // Pindahkan elemen ke container utama
+            container.appendChild(pageElement);
+            
+            console.log(`Page ${pageId} loaded successfully and appended.`);
 
-        const html = await response.text();
-        container.innerHTML = html;
-        console.log(`Page ${pageId} loaded successfully`);
-
-        showPage(pageId);
-        initializePageScripts(pageId);
-
-    } catch (error) {
-        console.error('Gagal memuat halaman:', error);
-        showNotification('Gagal memuat halaman. Mohon coba lagi.', 'error');
+        } catch (error) {
+            console.error('Gagal memuat halaman:', error);
+            showNotification('Gagal memuat halaman. Mohon coba lagi.', 'error');
+            return;
+        }
+    } else {
+        console.log(`Page ${pageId} already exists. Skipping fetch.`);
     }
+
+    // Panggil showPage setelah yakin elemen sudah ada di DOM
+    showPage(pageId);
+    initializePageScripts(pageId);
 }
 
 function initializePageScripts(pageId) {
