@@ -1,0 +1,38 @@
+<div class="page auth-container" data-flow="auth">
+    <div class="auth-header">
+        <h2>Daftar Toko Baru</h2>
+        <p>Isi data untuk memulai</p>
+    </div>
+    <form class="auth-form" onsubmit="handleRegister(event)">
+        <div class="input-group">
+            <i class="material-icons-outlined">storefront</i>
+            <input type="text" id="store-name" placeholder="Nama Toko" required>
+        </div>
+        <div class="input-group">
+            <i class="material-icons-outlined">person</i>
+            <input type="text" id="owner-name" placeholder="Nama Pemilik" required>
+        </div>
+        <div class="input-group">
+            <i class="material-icons-outlined">category</i>
+            <select id="business-category">
+                <option value="" disabled selected>Pilih Kategori Bisnis</option>
+                <option value="food_beverage">Makanan & Minuman</option>
+                <option value="retail">Retail</option>
+                <option value="service">Jasa</option>
+                <option value="other">Lainnya</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <i class="material-icons-outlined">email</i>
+            <input type="email" id="register-email" placeholder="Email" required>
+        </div>
+        <div class="input-group">
+            <i class="material-icons-outlined">lock</i>
+            <input type="password" id="register-password" placeholder="Password" required>
+        </div>
+        <button type="submit" class="btn" data-translate="register">Daftar</button>
+    </form>
+    <div class="auth-footer">
+        Sudah punya akun? <a href="#" onclick="showPage('login-page')">Masuk di sini</a>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+<div class="page" data-flow="app">
+    <h2>Pembayaran</h2>
+    <div class="card">
+        <div class="discount-container">
+            <input type="number" id="discount-input" placeholder="Diskon (%)" min="0" max="100">
+            <button onclick="applyDiscount()">Terapkan</button>
+        </div>
+        <div class="payment-summary-item">
+            <span>Total Belanja</span>
+            <span id="payment-subtotal">Rp 0</span>
+        </div>
+        <div class="payment-summary-item">
+            <span>Diskon (<span id="discount-percentage-label">0%</span>)</span>
+            <span id="payment-discount">Rp 0</span>
+        </div>
+        <hr style="border-color: var(--border-color); margin: 10px 0;">
+        <div class="payment-summary-item total">
+            <span>Total Pembayaran</span>
+            <span id="payment-total-amount">Rp 0</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Pilih Metode Pembayaran</h3>
+        <div class="payment-method-grid">
+            <div class="method-card active" onclick="selectPaymentMethod(this, 'tunai')">
+                <i class="material-icons-outlined">payments</i>
+                <h4>Tunai</h4>
+            </div>
+            <div class="method-card" onclick="selectPaymentMethod(this, 'qris')">
+                <i class="material-icons-outlined">qr_code_2</i>
+                <h4>QRIS</h4>
+            </div>
+        </div>
+        <div id="qr-code-container" style="display: none;"></div>
+        <button class="btn" style="margin-top: 20px;" onclick="completePayment()">Konfirmasi Pembayaran</button>
+        <p class="back-to-cart" onclick="showPage('cart-page')">Kembali ke Keranjang</p>
+    </div>
+</div>
